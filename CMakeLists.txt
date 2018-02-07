@@ -6,16 +6,17 @@ project( SCHNEE CXX)
 file( GLOB incList "${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc/*.h" )
 file( GLOB inc2List "${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc/*.hpp" )
 file( GLOB srcList "${CMAKE_CURRENT_SOURCE_DIR}/schnee/src/*.cpp" )
+file( GLOB libList "${CMAKE_CURRENT_SOURCE_DIR}/lib/*.hpp" )
 
-add_library( SCHNEE_LIB ${srcList} ${incList} ${inc2List} )
-target_include_directories(SCHNEE_LIB PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc)
+add_library( SCHNEE_LIB ${srcList} ${incList} ${inc2List} ${libList} )
+target_include_directories(SCHNEE_LIB PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
 # Target program
 add_executable( Schnee "${CMAKE_CURRENT_SOURCE_DIR}/core/schnee_main.cpp")
-target_include_directories( Schnee PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc)
+target_include_directories( Schnee PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 target_link_libraries( Schnee SCHNEE_LIB )
 
 
 add_executable( Schnee_tests "${CMAKE_CURRENT_SOURCE_DIR}/core/schnee_test.cpp")
-target_include_directories( Schnee_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc)
+target_include_directories( Schnee_tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/schnee/inc ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 target_link_libraries( Schnee_tests SCHNEE_LIB )
