@@ -17,7 +17,7 @@ bool FL_OFF_load_points(const std::string & path, std::vector<sVector3> & output
 
 	// Check file type
 	reader >> reader_str;
-	if(!reader_str.compare("OFF"))
+	if(reader_str.compare("OFF"))
 	{
 		reader.close();
 		std::cout << path << " is not an off file" << std::endl;
