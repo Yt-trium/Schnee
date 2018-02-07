@@ -23,6 +23,8 @@ public:
 
 	static float dot(const Vector3&, const Vector3&);
 
+	static Vector3 zup();
+
 	float x, y, z;
 
 	// OPERATORS

@@ -61,6 +61,11 @@ float Vector3::dot(const Vector3 & va, const Vector3 & vb)
 	return va.x * vb.x + va.y * vb.y + va.z * vb.z;
 }
 
+Vector3 Vector3::zup()
+{
+	return Vector3(0, 0, 1);
+}
+
 Vector3 &Vector3::operator/=(const float &b)
 {
 	x /= b;
