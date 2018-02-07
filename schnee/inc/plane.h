@@ -11,8 +11,9 @@
  */
 class Plane
 {
-	public sVector3 center;
-	public sVector3 normal;
+public:
+	sVector3 center;
+	sVector3 normal;
 };
 
 typedef std::shared_ptr<Plane> sPlane;
