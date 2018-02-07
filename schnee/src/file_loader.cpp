@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <iostream>
 
-void FL_OFF_load_points(const std::string & path, std::vector<Vector3> & output)
+bool FL_OFF_load_points(const std::string & path, std::vector<sVector3> & output)
 {
 	std::ifstream reader(path);
 	// Checkup
@@ -21,7 +21,7 @@ void FL_OFF_load_points(const std::string & path, std::vector<Vector3> & output)
 	{
 		reader.close();
 		std::cout << path << " is not an off file" << std::endl;
-		return;
+		return false;
 	}
 
 	int vert_count;
@@ -33,12 +33,12 @@ void FL_OFF_load_points(const std::string & path, std::vector<Vector3> & output)
 	for(int i = 0; i < vert_count; i++)
 	{
 		reader >> x >> y >> z;
-		output.emplace_back(x, y, z);
+		output.emplace_back(new Vector3(x, y, z));
 	}
 
 	// Cleaning
 	reader.close();
 
-	return;
+	return true;
 }
 

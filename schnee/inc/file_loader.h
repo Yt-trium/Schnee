@@ -6,6 +6,12 @@
 #include <string>
 #include <vector>
 
-void FL_OFF_load_points(const std::string &, std::vector<Vector3> &);
+/**
+ * @brief Load points from a file
+ * @param       File path
+ * @param out   Out point list
+ * @return True for success
+ */
+bool FL_OFF_load_points(const std::string &, std::vector<sVector3> &);
 
 #endif
