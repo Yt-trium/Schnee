@@ -1,6 +1,8 @@
 #ifndef __VECTOR__
 #define __VECTOR__
 
+#include <memory>
+
 class Vector3
 {
 
@@ -37,5 +39,7 @@ public:
 	friend Vector3 operator+ (Vector3 a, const Vector3& b);
 
 };
+
+typedef std::shared_ptr<Vector3> sVector3;
 
 #endif
