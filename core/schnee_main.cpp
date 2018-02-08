@@ -41,23 +41,13 @@ int main(int argc, const char * argv[])
 
 	// Get points
 	if(!FL_OFF_load_points(pin, pc.points))
-	{
 		exit(3);
-	}
-
-	// Create nearest neighbour tree
-	typedef nanoflann::KDTreeSingleIndexAdaptor<
-	        nanoflann::L2_Simple_Adaptor<float, PointCloud>,
-	        PointCloud,
-	        3
-	        > sc_kd_tree;
-
-	sc_kd_tree index(3, pc,
-	                 nanoflann::KDTreeSingleIndexAdaptorParams(10));
-	index.buildIndex();
 
 	std::vector<sPlane> planes;
 	PC_build_planes(pc, planes, k);
+
+	return 0;
+}
 	// Search closest to a point
 	/*
     const size_t num_results = k;
@@ -91,8 +81,3 @@ int main(int argc, const char * argv[])
         std::cout << "idx["<< i << "]=" << ret_index[i] << " dist["<< i << "]=" << out_dist_sqr[i] << std::endl;
 	std::cout << "\n";
 	*/
-
-
-
-	return 0;
-}
