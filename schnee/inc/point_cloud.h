@@ -5,6 +5,8 @@
 #include "plane.h"
 
 #include <vector>
+#include <Eigen/Eigen>
+#include <Eigen/Dense>
 
 struct PointCloud
 {
@@ -27,5 +29,7 @@ struct PointCloud
 };
 
 void PC_build_planes(const PointCloud &, std::vector<sPlane> &, size_t);
+
+void PC_compute_normal(Eigen::EigenSolver<Eigen::Matrix3f> &, const Eigen::Matrix3f &, Vector3 &);
 
 #endif

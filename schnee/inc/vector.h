@@ -10,6 +10,8 @@ public:
 
 	Vector3(float, float, float);
 
+	Vector3();
+
 	float distanceTo(const Vector3&) const;
 	float squaredDistanceTo(const Vector3&) const;
 

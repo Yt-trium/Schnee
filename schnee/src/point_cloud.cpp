@@ -1,7 +1,7 @@
 #include "point_cloud.h"
 #include "nanoflann.hpp"
 
-#include <eigen3/Eigen/Eigen>
+#include <iostream>
 
 void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t k)
 {
@@ -30,7 +30,8 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 	sVector3                current_neighbour;
 	float                   xdist, ydist, zdist;
 
-	Eigen::Matrix<float, 3, 3> covariance_matrix;
+	Eigen::Matrix3f covariance_matrix;
+    Eigen::EigenSolver<Eigen::Matrix3f> eigensolver;
 
 
 	for(int i = 0; i < pc.points.size(); ++i)
@@ -82,10 +83,26 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 			covariance_matrix(0, 2) += zdist;
 		}
 
+		// Solve normal
+		plane->normal = std::make_shared<Vector3>();
+		PC_compute_normal(eigensolver, covariance_matrix, *(plane->normal.get()));
 
-		plane->normal = std::make_shared<Vector3>(Vector3::zup());
 		planes.push_back(plane);
 	}
 
 	return;
+}
+
+void PC_compute_normal(Eigen::EigenSolver<Eigen::Matrix3f> & solver, const Eigen::Matrix3f & covariance,
+                       Vector3& output)
+{
+		solver.compute(covariance);
+		assert(solver.info() == Eigen::Success);
+        //std::cout << "Eigen values: " << solver.eigenvalues() << "\n";
+		//std::cout << "Eigen vectors: \n" << eigensolver.pseudoEigenvectors() << std::endl;
+		//std::cout << "Eigen vectors: \n" << solver.pseudoEigenvectors().col(2) << std::endl;
+		auto n = solver.pseudoEigenvectors().col(2);
+		output.x = n(0);
+		output.y = n(1);
+		output.z = n(2);
 }

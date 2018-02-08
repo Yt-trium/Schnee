@@ -2,12 +2,12 @@
 #include "plane.h"
 #include "file_loader.h"
 #include "file_saver.h"
-#include "nanoflann.hpp"
 #include "point_cloud.h"
 
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cassert>
 
 void dump_mem_usage()
 {
