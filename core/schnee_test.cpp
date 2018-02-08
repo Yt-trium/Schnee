@@ -4,6 +4,29 @@
 
 #include "catch.hpp"
 
+#include "point_cloud.h"
+
+TEST_CASE( "PC_build_planes", "[point_cloud.h]" ) {
+    PointCloud pc;
+    std::vector<sPlane> planes;
+
+    pc.points.emplace_back(new Vector3(1, 0, 0));
+    pc.points.emplace_back(new Vector3(2, 0, 0));
+    pc.points.emplace_back(new Vector3(3, 0, 0));
+    pc.points.emplace_back(new Vector3(4, 0, 0));
+    pc.points.emplace_back(new Vector3(8, 0, 0));
+    pc.points.emplace_back(new Vector3(10, 0, 0));
+
+    PC_build_planes(pc, planes, 2);
+
+    for(int i = 0; i < planes.size(); i++)
+    {
+        std::cout << planes[i]->center->x << " "
+                  << planes[i]->center->y << " "
+                  << planes[i]->center->z << std::endl;
+    }
+}
+
 // Example test with std::vector
 TEST_CASE( "vectors can be sized and resized", "[vector]" ) {
 
