@@ -1,6 +1,7 @@
 #ifndef KRUSKAL_H
 #define KRUSKAL_H
 
+#include <iostream>
 #include <vector>
 #include <algorithm>
 
@@ -45,8 +46,8 @@ public:
 private:
     KGraph graph;
 
-    int find(KSubset subsets[], int i);
-    void set_union(KSubset subsets[], int x, int y);
+    int find(std::vector<KSubset> subsets, int i);
+    void set_union(std::vector<KSubset> subsets, int x, int y);
 };
 
 int max(int a, int b);

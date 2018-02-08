@@ -9,11 +9,14 @@
 
 TEST_CASE( "Kruskal" ) {
     Kruskal k;
+
     k.addEdge(0,1,10);
     k.addEdge(0,2,6);
     k.addEdge(0,3,5);
     k.addEdge(1,3,15);
     k.addEdge(2,3,4);
+
+    k.MST();
 }
 
 TEST_CASE( "PC_build_planes", "[point_cloud.h]" ) {
