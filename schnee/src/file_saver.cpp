@@ -60,21 +60,21 @@ bool FS_OFF_save_planes(const std::string & path, const std::vector<sPlane> & pl
 		n = *((*it)->normal.get());
 		p = *((*it)->center.get());
 
-		//v = Vector3::cross(u, n);
+		u = Vector3::cross(v, n);
 
-		/*
 		topright = p + u * size + v * size;
 		bottomright = p - u * size + v * size;
 		bottomleft = p - u * size - v * size;
 		topleft = p + u * size - v * size;
-		*/
 
+		/*
 		topright = p + n * size;
 		bottomright = p;
 		bottomleft = p;
-		bottomleft.x += size;
+		bottomleft.x += size / 2;
 		topleft = topright;
-		topleft.x += size;
+		topleft.x += size / 2;
+		*/
 
 		// vert buffer
 		verts << topright.x << " " << topright.y << " " << topright.z << "\n";
