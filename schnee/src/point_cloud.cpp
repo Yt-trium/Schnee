@@ -102,12 +102,65 @@ void PC_compute_surface_from_covaraince(
 {
 		solver.compute(covariance);
 		assert(solver.info() == Eigen::Success);
-        //std::cout << "Eigen values: " << solver.eigenvalues() << "\n";
+        std::cout << "Eigen values: " << solver.eigenvalues() << "\n";
 		std::cout << "Eigen vectors: \n" << solver.pseudoEigenvectors() << std::endl;
 		//std::cout << "Eigen vectors: \n" << solver.pseudoEigenvectors().col(2) << std::endl;
-		auto u = solver.pseudoEigenvectors().col(0);
-		auto v = solver.pseudoEigenvectors().col(1);
-		auto n = solver.pseudoEigenvectors().col(2);
+		const float & lamb1 = solver.eigenvalues()(0).real();
+		const float & lamb2 = solver.eigenvalues()(1).real();
+		const float & lamb3 = solver.eigenvalues()(2).real();
+		int ncol = 0, ucol = 1, vcol = 2;
+		std::cout << "lamb1: " << lamb1 << "\n";
+		std::cout << "lamb2: " << lamb2 << "\n";
+		std::cout << "lamb3: " << lamb3 << "\n";
+		if(lamb1 <= lamb2 && lamb1 <= lamb3)
+		{
+			ncol = 0;
+			if(lamb2 <= lamb3)
+			{
+                ucol = 1;
+                vcol = 2;
+			}
+			else
+			{
+                ucol = 2;
+                vcol = 1;
+			}
+		}
+		else if(lamb2 <= lamb3 && lamb2 <= lamb1)
+		{
+			ncol = 1;
+			if(lamb3 <= lamb1)
+			{
+				ucol = 2;
+				vcol = 0;
+			}
+			else
+			{
+                ucol = 0;
+                vcol = 2;
+			}
+		}
+		else
+		{
+			assert(lamb3 <= lamb1);
+			assert(lamb3 <= lamb2);
+			ncol = 2;
+			if(lamb1 <= lamb2)
+			{
+				ucol = 0;
+				vcol = 1;
+			}
+			else
+			{
+                ucol = 1;
+                vcol = 0;
+			}
+
+		}
+
+		auto u = solver.pseudoEigenvectors().col(ucol);
+		auto v = solver.pseudoEigenvectors().col(vcol);
+		auto n = solver.pseudoEigenvectors().col(ncol);
 		output.normal = std::make_shared<Vector3>(n(0), n(1), n(2));
 		output.u = std::make_shared<Vector3>(u(0), u(1), u(2));
 		output.v = std::make_shared<Vector3>(v(0), v(1), v(2));
