@@ -1,6 +1,7 @@
 #include "vector.h"
 #include "plane.h"
 #include "file_loader.h"
+#include "file_saver.h"
 #include "nanoflann.hpp"
 #include "point_cloud.h"
 
@@ -22,18 +23,20 @@ void dump_mem_usage()
 
 int main(int argc, const char * argv[])
 {
-	if(argc < 3)
+	if(argc < 4)
 	{
 		std::cout << "USAGE:\n";
-		std::cout << argv[0] << " off_input_file k" << std::endl;
+		std::cout << argv[0] << " off_input_file off_out_file k" << std::endl;
 		exit(2);
 	}
 
 	// In off file
 	std::string pin = argv[1];
-	int k = std::stoi(argv[2]);
+	std::string pout = argv[2];
+	int k = std::stoi(argv[3]);
 	assert(k > 1);
 	std::cout << "IN FILE: " << pin << "\n";
+	std::cout << "OUT FILE: " << pout << "\n";
 	std::cout << "K: " << k << std::endl;
 
 	// Create empty point cloud
@@ -45,6 +48,14 @@ int main(int argc, const char * argv[])
 
 	std::vector<sPlane> planes;
 	PC_build_planes(pc, planes, k);
+
+	std::vector<sVector3> origins;
+	for(int i = 0; i < planes.size(); i++)
+	{
+		origins.push_back(planes[i]->center);
+	}
+
+	FS_OFF_save_points(pout, origins);
 
 	return 0;
 }
