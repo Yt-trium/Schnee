@@ -1,6 +1,8 @@
 #include "point_cloud.h"
 #include "nanoflann.hpp"
 
+#include <eigen3/Eigen/Eigen>
+
 void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t k)
 {
 	assert(k > 1);
@@ -26,6 +28,9 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 	size_t                  nbhd_count;
 	size_t                  current_index;
 	sVector3                current_neighbour;
+	float                   xdist, ydist, zdist;
+
+	Eigen::Matrix<float, 3, 3> covariance_matrix;
 
 
 	for(int i = 0; i < pc.points.size(); ++i)
@@ -42,7 +47,7 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 
 		sPlane plane = std::make_shared<Plane>();
 
-		// Calculate o
+		// Calculate o, centroid
 		for(int j = 1; j < num_results; ++j)
 		{
 			current_index = ret_index[j];
@@ -53,6 +58,31 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 				*(plane->center.get()) += *(current_neighbour.get());
 		}
 		*(plane->center.get()) /= k;
+
+		// Calculate n, normal
+		covariance_matrix.setZero();
+		for(int j = 1; j < num_results; ++j)
+		{
+			current_index = ret_index[j];
+			current_neighbour = pc.points[current_index];
+			xdist = current_neighbour->x - plane->center->x;
+			ydist = current_neighbour->y - plane->center->y;
+			zdist = current_neighbour->z - plane->center->z;
+
+			covariance_matrix(1, 1) += ydist * ydist;
+			covariance_matrix(1, 2) += ydist * zdist;
+			covariance_matrix(2, 2) += zdist * zdist;
+
+			xdist *= xdist;
+			ydist *= xdist;
+			zdist *= xdist;
+
+			covariance_matrix(0, 0) += xdist;
+			covariance_matrix(0, 1) += ydist;
+			covariance_matrix(0, 2) += zdist;
+		}
+
+
 		plane->normal = std::make_shared<Vector3>(Vector3::zup());
 		planes.push_back(plane);
 	}
