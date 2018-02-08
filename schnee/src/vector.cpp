@@ -8,6 +8,8 @@ Vector3::Vector3(float px, float py, float pz) :
 
 }
 
+Vector3::Vector3() : Vector3(0, 0, 0) { } ;
+
 float Vector3::distanceTo(const Vector3 & o) const
 {
 	return sqrt(pow(o.x - x, 2) + pow(o.y - y, 2) + pow(o.z - z, 2));

@@ -6,6 +6,10 @@ project( SCHNEE CXX)
 # ---------------------
 set(distant_inc_dir "${CMAKE_CURRENT_SOURCE_DIR}/distant/includes")
 
+# DEPENDENCIES
+# ---------------------
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+
 # SCHNEE LIBRARY
 # ---------------------
 set(schnee_dir "${CMAKE_CURRENT_SOURCE_DIR}/schnee")
@@ -19,6 +23,8 @@ file( GLOB schnee_sources "${schnee_src_dir}/*.cpp" )
 add_library( SCHNEE_LIB
 	${schnee_sources}
 	${schnee_headers})
+target_link_libraries(SCHNEE_LIB
+	Eigen3::Eigen)
 target_include_directories(SCHNEE_LIB PRIVATE
 	${schnee_inc_dir}
 	${distant_inc_dir}
@@ -33,7 +39,8 @@ target_include_directories( Schnee PRIVATE
 	${schnee_inc_dir}
 	${distant_inc_dir}
 	)
-target_link_libraries( Schnee SCHNEE_LIB )
+target_link_libraries( Schnee SCHNEE_LIB
+	Eigen3::Eigen)
 
 # Tests
 add_executable( Schnee_tests "${CMAKE_CURRENT_SOURCE_DIR}/core/schnee_test.cpp")
@@ -41,4 +48,5 @@ target_include_directories( Schnee_tests PRIVATE
 	${schnee_inc_dir}
 	${distant_inc_dir}
 	)
-target_link_libraries( Schnee_tests SCHNEE_LIB )
+target_link_libraries( Schnee_tests SCHNEE_LIB
+	Eigen3::Eigen)
