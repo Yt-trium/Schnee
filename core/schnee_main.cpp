@@ -55,7 +55,8 @@ int main(int argc, const char * argv[])
 		origins.push_back(planes[i]->center);
 	}
 
-	FS_OFF_save_points(pout, origins);
+	//FS_OFF_save_points(pout, origins);
+	FS_OFF_save_planes(pout, planes, 0.05f);
 
 	return 0;
 }

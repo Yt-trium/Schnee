@@ -14,6 +14,8 @@ class Plane
 public:
 	sVector3 center;
 	sVector3 normal;
+	sVector3 u;
+	sVector3 v;
 };
 
 typedef std::shared_ptr<Plane> sPlane;

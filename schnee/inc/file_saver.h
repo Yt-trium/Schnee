@@ -2,6 +2,7 @@
 #define __FILE_SAVER__
 
 #include "vector.h"
+#include "plane.h"
 
 #include <string>
 #include <vector>
@@ -13,5 +14,7 @@
  * @return True for success
  */
 bool FS_OFF_save_points(const std::string &, const std::vector<sVector3> &);
+
+bool FS_OFF_save_planes(const std::string &, const std::vector<sPlane> &, float = 1.0f);
 
 #endif

@@ -82,10 +82,12 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 			covariance_matrix(0, 1) += ydist;
 			covariance_matrix(0, 2) += zdist;
 		}
+        covariance_matrix (1, 0) = covariance_matrix (0, 1);
+        covariance_matrix (2, 0) = covariance_matrix (0, 2);
+        covariance_matrix (2, 1) = covariance_matrix (1, 2);
 
 		// Solve normal
-		plane->normal = std::make_shared<Vector3>();
-		PC_compute_normal(eigensolver, covariance_matrix, *(plane->normal.get()));
+		PC_compute_surface_from_covaraince(eigensolver, covariance_matrix, *(plane.get()));
 
 		planes.push_back(plane);
 	}
@@ -93,16 +95,20 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 	return;
 }
 
-void PC_compute_normal(Eigen::EigenSolver<Eigen::Matrix3f> & solver, const Eigen::Matrix3f & covariance,
-                       Vector3& output)
+void PC_compute_surface_from_covaraince(
+        Eigen::EigenSolver<Eigen::Matrix3f> & solver,
+        const Eigen::Matrix3f & covariance,
+        Plane& output)
 {
 		solver.compute(covariance);
 		assert(solver.info() == Eigen::Success);
         //std::cout << "Eigen values: " << solver.eigenvalues() << "\n";
-		//std::cout << "Eigen vectors: \n" << eigensolver.pseudoEigenvectors() << std::endl;
+		std::cout << "Eigen vectors: \n" << solver.pseudoEigenvectors() << std::endl;
 		//std::cout << "Eigen vectors: \n" << solver.pseudoEigenvectors().col(2) << std::endl;
+		auto u = solver.pseudoEigenvectors().col(0);
+		auto v = solver.pseudoEigenvectors().col(1);
 		auto n = solver.pseudoEigenvectors().col(2);
-		output.x = n(0);
-		output.y = n(1);
-		output.z = n(2);
+		output.normal = std::make_shared<Vector3>(n(0), n(1), n(2));
+		output.u = std::make_shared<Vector3>(u(0), u(1), u(2));
+		output.v = std::make_shared<Vector3>(v(0), v(1), v(2));
 }

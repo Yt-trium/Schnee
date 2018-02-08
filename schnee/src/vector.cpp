@@ -63,6 +63,15 @@ float Vector3::dot(const Vector3 & va, const Vector3 & vb)
 	return va.x * vb.x + va.y * vb.y + va.z * vb.z;
 }
 
+Vector3 Vector3::cross(Vector3 res, const Vector3 & b)
+{
+	Vector3 a = res;
+	res.x = a.y * b.z - a.z * b.y;
+	res.y = a.z * b.x - a.x * b.z;
+	res.z = a.x * b.y - a.y * b.x;
+	return res;
+}
+
 Vector3 Vector3::zup()
 {
 	return Vector3(0, 0, 1);
