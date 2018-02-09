@@ -46,9 +46,17 @@ int main(int argc, const char * argv[])
 	if(!FL_OFF_load_points(pin, pc.points))
 		exit(3);
 
+	// Buil planes
 	std::vector<sPlane> planes;
 	PC_build_planes(pc, planes, k);
 
+	// Fix planes orientation
+	PlaneCloud plc;
+	plc.planes = planes;
+	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(10));
+	index.buildIndex();
+
+	// Debug
 	std::vector<sVector3> origins;
 	for(int i = 0; i < planes.size(); i++)
 	{

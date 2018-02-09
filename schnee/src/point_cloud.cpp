@@ -1,5 +1,4 @@
 #include "point_cloud.h"
-#include "nanoflann.hpp"
 
 #include <iostream>
 
@@ -8,13 +7,7 @@ void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t
 	assert(k > 1);
 
 	// Create nearest neighbour tree
-	typedef nanoflann::KDTreeSingleIndexAdaptor<
-	        nanoflann::L2_Simple_Adaptor<float, PointCloud>,
-	        PointCloud,
-	        3
-	        > sc_kd_tree;
-
-	sc_kd_tree index(3, pc,
+	point_cloud_index index(3, pc,
 	                 nanoflann::KDTreeSingleIndexAdaptorParams(10));
 	index.buildIndex();
 
