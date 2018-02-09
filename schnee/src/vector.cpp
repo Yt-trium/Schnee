@@ -139,4 +139,9 @@ Vector3 operator*(float b, Vector3 a)
 	return a;
 }
 
+std::ostream &operator<<(std::ostream &a, const Vector3 &b)
+{
+	a << "(" << b.x << ", " << b.y << ", " << b.z << ")";
+	return a;
+}
 

@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
+#include <cmath>
 
 void dump_mem_usage()
 {
@@ -23,10 +24,10 @@ void dump_mem_usage()
 
 int main(int argc, const char * argv[])
 {
-	if(argc < 4)
+	if(argc < 5)
 	{
 		std::cout << "USAGE:\n";
-		std::cout << argv[0] << " off_input_file off_out_file k" << std::endl;
+		std::cout << argv[0] << " off_input_file off_out_file k cell_size" << std::endl;
 		exit(2);
 	}
 
@@ -34,10 +35,13 @@ int main(int argc, const char * argv[])
 	std::string pin = argv[1];
 	std::string pout = argv[2];
 	int k = std::stoi(argv[3]);
+	float cell_size = std::stof(argv[4]);
 	assert(k > 1);
+	assert(cell_size > 0.0f);
 	std::cout << "IN FILE: " << pin << "\n";
 	std::cout << "OUT FILE: " << pout << "\n";
 	std::cout << "K: " << k << std::endl;
+	std::cout << "CELL SIZE: " << cell_size << std::endl;
 
 	// Create empty point cloud
 	PointCloud pc;
@@ -56,6 +60,51 @@ int main(int argc, const char * argv[])
 	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(10));
 	index.buildIndex();
 
+	// Get bounding box
+	Vector3 bbox_min;
+	Vector3 bbox_max;
+	PLC_get_bounds(plc,
+	               bbox_min.x, bbox_min.y, bbox_min.z,
+	               bbox_max.x, bbox_max.y, bbox_max.z);
+	std::cout << "BBOX MIN " << bbox_min << "\n";
+	std::cout << "BBOX MAX " << bbox_max << "\n";
+
+	// Calculate "cells"
+	float nb_cell_x = std::ceil((bbox_max.x - bbox_min.x ) / cell_size + 1);
+	float nb_cell_y = std::ceil((bbox_max.y - bbox_min.y ) / cell_size + 1);
+	float nb_cell_z = std::ceil((bbox_max.z - bbox_min.z ) / cell_size + 1);
+	std::cout << "NBCELLS : " << nb_cell_x << " / " << nb_cell_y << " / " << nb_cell_z << "\n";
+
+	// Debug "cells"
+	std::vector<sVector3> corners(nb_cell_x * nb_cell_y * nb_cell_z);
+	Vector3 cell_center;
+	assert(bbox_min.x + cell_size * nb_cell_x >= bbox_max.x);
+	assert(bbox_min.y + cell_size * nb_cell_y >= bbox_max.y);
+	assert(bbox_min.z + cell_size * nb_cell_z >= bbox_max.z);
+	std::cout << "TOTAL NB CELLS: " << corners.size() << "\n";
+	std::cout << "TOTAL NB CELLS2: " <<
+	             (nb_cell_z - 1) * (nb_cell_x * nb_cell_y) + (nb_cell_y - 1) * nb_cell_x + nb_cell_x << "\n";
+	std::cout << std::endl;
+	assert(corners.size() ==
+	             (nb_cell_z - 1) * (nb_cell_x * nb_cell_y) + (nb_cell_y - 1) * nb_cell_x + nb_cell_x);
+
+	for(float z = 0; z < nb_cell_z; z+=1)
+	{
+        cell_center.z = bbox_min.z + z * cell_size;
+        for(float y = 0; y < nb_cell_y; y+=1)
+        {
+            cell_center.y = bbox_min.y + y * cell_size;
+            for(float x = 0; x < nb_cell_x; x+=1)
+            {
+                cell_center.x = bbox_min.x + x * cell_size;
+                corners[z * (nb_cell_x * nb_cell_y) + y * nb_cell_x + x] = std::make_shared<Vector3>(cell_center);
+            }
+        }
+	}
+
+	// Calculate signed distance function
+	//std::vector<float> signedFunctions()
+
 	// Debug
 	std::vector<sVector3> origins;
 	for(int i = 0; i < planes.size(); i++)
@@ -63,8 +112,9 @@ int main(int argc, const char * argv[])
 		origins.push_back(planes[i]->center);
 	}
 
-	//FS_OFF_save_points(pout, origins);
-	FS_OFF_save_planes(pout, planes, 0.05f);
+    FS_OFF_save_points("/tmp/out.cells.corners.off", corners);
+	FS_OFF_save_points("/tmp/out.plane.centers.off", origins);
+	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 
 	return 0;
 }

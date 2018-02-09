@@ -71,6 +71,18 @@ typedef nanoflann::KDTreeSingleIndexAdaptor<
 void PTC_build_planes(const PointCloud &, std::vector<sPlane> &, size_t);
 
 /**
+ * @brief Calculate the min and max (x, y, z) of a plane cloud.
+ * @param The cloud
+ * @param out min x
+ * @param out min y
+ * @param out min z
+ * @param out max x
+ * @param out max y
+ * @param out max z
+ */
+void PLC_get_bounds(const PlaneCloud&, float &, float &, float &, float &, float &, float &);
+
+/**
  * @brief Extract the normal from a covariance matrix usign eigen vectors.
  * @param The eigen solver
  * @param The covariance matrix

@@ -158,3 +158,32 @@ void PC_compute_surface_from_covaraince(
 		output.u = std::make_shared<Vector3>(u(0), u(1), u(2));
 		output.v = std::make_shared<Vector3>(v(0), v(1), v(2));
 }
+
+void PLC_get_bounds(const PlaneCloud & plc,
+                    float & xmin, float & ymin, float & zmin,
+                    float & xmax, float & ymax, float & zmax)
+{
+	const std::vector<sPlane> planes = plc.planes;
+	sVector3 current = planes[0]->center;
+
+	xmin = current->x;
+	ymin = current->y;
+	zmin = current->z;
+	xmax = current->x;
+	ymax = current->y;
+	zmax = current->z;
+
+	for(int i = 1; i < planes.size(); ++i)
+	{
+		current = planes[i]->center;
+
+		if(current->x < xmin) xmin = current->x;
+		else if(current->x > xmax) xmax = current->x;
+
+		if(current->y < ymin) ymin = current->y;
+		else if(current->y > ymax) ymax = current->y;
+
+		if(current->z < zmin) zmin = current->z;
+		else if(current->z > zmax) zmax = current->z;
+	}
+}

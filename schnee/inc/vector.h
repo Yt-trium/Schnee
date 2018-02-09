@@ -2,6 +2,7 @@
 #define __VECTOR__
 
 #include <memory>
+#include <iostream>
 
 class Vector3
 {
@@ -43,6 +44,8 @@ public:
 	friend Vector3 operator* (float b, Vector3 a);
 	friend Vector3 operator- (Vector3 a, const Vector3& b);
 	friend Vector3 operator+ (Vector3 a, const Vector3& b);
+
+    friend std::ostream& operator<< (std::ostream& a, const Vector3& b);
 
 };
 
