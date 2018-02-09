@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void PC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t k)
+void PTC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_t k)
 {
 	assert(k > 1);
 

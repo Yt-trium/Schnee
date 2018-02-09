@@ -48,7 +48,7 @@ int main(int argc, const char * argv[])
 
 	// Buil planes
 	std::vector<sPlane> planes;
-	PC_build_planes(pc, planes, k);
+	PTC_build_planes(pc, planes, k);
 
 	// Fix planes orientation
 	PlaneCloud plc;

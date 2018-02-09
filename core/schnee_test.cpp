@@ -30,7 +30,7 @@ TEST_CASE( "PC_build_planes", "[point_cloud.h]" ) {
     pc.points.emplace_back(new Vector3(8, 0, 0));
     pc.points.emplace_back(new Vector3(10, 0, 0));
 
-    PC_build_planes(pc, planes, 2);
+    PTC_build_planes(pc, planes, 2);
 
     for(int i = 0; i < planes.size(); i++)
     {

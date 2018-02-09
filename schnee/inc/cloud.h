@@ -62,8 +62,20 @@ typedef nanoflann::KDTreeSingleIndexAdaptor<
 > plane_cloud_index;
 
 
-void PC_build_planes(const PointCloud &, std::vector<sPlane> &, size_t);
+/**
+ * @brief Create oriented planes from a set of points.
+ * @param The points
+ * @param The output planes
+ * @param The number of neighbour to take for each plane computation
+ */
+void PTC_build_planes(const PointCloud &, std::vector<sPlane> &, size_t);
 
+/**
+ * @brief Extract the normal from a covariance matrix usign eigen vectors.
+ * @param The eigen solver
+ * @param The covariance matrix
+ * @param out writer
+ */
 void PC_compute_surface_from_covaraince(
         Eigen::EigenSolver<Eigen::Matrix3f> &,
         const Eigen::Matrix3f &,
