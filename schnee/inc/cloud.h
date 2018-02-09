@@ -1,5 +1,5 @@
-#ifndef __POINT_CLOUD__
-#define __POINT_CLOUD__
+#ifndef __CLOUD__
+#define __CLOUD__
 
 #include "vector.h"
 #include "plane.h"

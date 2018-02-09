@@ -5,7 +5,7 @@
 #include "catch.hpp"
 
 #include "kruskal.h"
-#include "point_cloud.h"
+#include "cloud.h"
 
 TEST_CASE( "Kruskal" ) {
     Kruskal k;

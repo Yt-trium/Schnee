@@ -2,7 +2,7 @@
 #include "plane.h"
 #include "file_loader.h"
 #include "file_saver.h"
-#include "point_cloud.h"
+#include "cloud.h"
 
 #include <iostream>
 #include <string>

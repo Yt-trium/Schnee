@@ -1,4 +1,4 @@
-#include "point_cloud.h"
+#include "cloud.h"
 
 #include <iostream>
 
