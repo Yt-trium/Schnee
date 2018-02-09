@@ -8,8 +8,8 @@ class Edge
 public:
     Edge();
 
-    Plane p1;
-    Plane p2;
+    sPlane p1;
+    sPlane p2;
     float w;
 
 };
