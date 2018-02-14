@@ -104,6 +104,8 @@ int main(int argc, const char * argv[])
 
 	// Calculate signed distance function
 	//std::vector<float> signedFunctions()
+	std::vector<float> distances;
+	PLC_compute_signed_distances(plc, index, distances, bbox_min, bbox_max, cell_size, nb_cell_x, nb_cell_y, nb_cell_z);
 
 	// Debug
 	std::vector<sVector3> origins;
@@ -116,6 +118,7 @@ int main(int argc, const char * argv[])
 	FS_OFF_save_points("/tmp/out.plane.centers.off", origins);
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 5, 0.06f);
+	FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
 
 	return 0;
 }

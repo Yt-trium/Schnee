@@ -82,6 +82,11 @@ void PTC_build_planes(const PointCloud &, std::vector<sPlane> &, size_t);
  */
 void PLC_get_bounds(const PlaneCloud&, float &, float &, float &, float &, float &, float &);
 
+void PLC_compute_signed_distances(const PlaneCloud&, const plane_cloud_index &, std::vector<float> &,
+                                  const Vector3 &, const Vector3 &,
+                                  float, size_t, size_t, size_t
+                                 );
+
 /**
  * @brief Extract the normal from a covariance matrix usign eigen vectors.
  * @param The eigen solver

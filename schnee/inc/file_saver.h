@@ -19,4 +19,6 @@ bool FS_OFF_save_planes(const std::string &, const std::vector<sPlane> &, float 
 
 bool FS_OFF_save_planes_normals(const std::string &, const std::vector<sPlane> &, size_t = 5, float = 1.0f);
 
+bool FS_OFF_save_grid_distances(const std::string &, const std::vector<sVector3> &, const std::vector<float> &);
+
 #endif

@@ -179,3 +179,62 @@ void PLC_get_bounds(const PlaneCloud & plc,
 		else if(current->z > zmax) zmax = current->z;
 	}
 }
+
+void PLC_compute_signed_distances(const PlaneCloud & plc,
+                                  const plane_cloud_index & cloud,
+                                  std::vector<float> & distances,
+                                  const Vector3 & bboxmin, const Vector3 & bboxmax,
+                                  float csize,
+                                  size_t count_x, size_t count_y, size_t count_z)
+{
+	assert(distances.size() == 0);
+	float nb_cell_x = count_x,
+	        nb_cell_y = count_y,
+	        nb_cell_z = count_z;
+	float nb_cell_xy = nb_cell_x * nb_cell_y;
+	float compute;
+	size_t index;
+
+	distances.resize(count_x * count_y * count_z);
+
+	assert(bboxmin.x + csize * nb_cell_x >= bboxmax.x);
+	assert(bboxmin.y + csize * nb_cell_y >= bboxmax.y);
+	assert(bboxmin.z + csize * nb_cell_z >= bboxmax.z);
+
+	// Nbhd variables
+	const size_t            num_results = 1;
+    std::vector<size_t>     ret_index(num_results);
+    std::vector<float>      out_squared_dist(num_results);
+	float                   kd_query[3];
+	size_t                  nbhd_count;
+	//sVector3                current_neighbour;
+	Vector3 cell_pos;
+
+	for(float z = 0; z < nb_cell_z; z+=1)
+	{
+        kd_query[2] = cell_pos.z = bboxmin.z + z * csize;
+        for(float y = 0; y < nb_cell_y; y+=1)
+        {
+            kd_query[1] = cell_pos.y = bboxmin.y + y * csize;
+            for(float x = 0; x < nb_cell_x; x+=1)
+            {
+                kd_query[0] = cell_pos.z = bboxmin.x + x * csize;
+				index = z * (nb_cell_xy) + y * nb_cell_x + x;
+
+				// Find closest
+                nbhd_count = cloud.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
+                assert(nbhd_count == num_results);
+
+                const sPlane & current_neighbour = plc.planes[ret_index[0]];
+				const Plane & current_plane = *(current_neighbour.get());
+				const Vector3 & current_center = *(current_plane.center.get());
+				const Vector3 & current_normal = *(current_plane.normal.get());
+
+				// Compute distance
+				compute = Vector3::dot(cell_pos - current_center, current_normal);
+				distances[index] = compute;
+            }
+        }
+	}
+
+}
