@@ -115,6 +115,7 @@ int main(int argc, const char * argv[])
     FS_OFF_save_points("/tmp/out.cells.corners.off", corners);
 	FS_OFF_save_points("/tmp/out.plane.centers.off", origins);
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
+	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 5, 0.06f);
 
 	return 0;
 }

@@ -44,10 +44,6 @@ bool FS_OFF_save_planes(const std::string & path, const std::vector<sPlane> & pl
 	auto it = planes.begin();
 	size_t index = 0;
 	Vector3 topleft, topright, bottomleft, bottomright;
-	Vector3 & u = *(planes[0]->u.get());
-	Vector3 & v = *(planes[0]->v.get());
-	Vector3 & n = *(planes[0]->normal.get());
-	Vector3 & p = *(planes[0]->center.get());
 
 	std::stringstream verts, faces;
 
@@ -55,12 +51,13 @@ bool FS_OFF_save_planes(const std::string & path, const std::vector<sPlane> & pl
 
 	while(it != planes.end())
 	{
-		u = *((*it)->u.get());
-		v = *((*it)->v.get());
-		n = *((*it)->normal.get());
-		p = *((*it)->center.get());
+		const Vector3 & u = *((*it)->u.get());
+		const Vector3 & v = *((*it)->v.get());
+		const Vector3 & n = *((*it)->normal.get());
+		const Vector3 & p = *((*it)->center.get());
 
-		u = Vector3::cross(v, n);
+		//u = Vector3::cross(v, n);
+		//v = Vector3::cross(*((*it)->u.get()), n);
 
 		topright = p + u * size + v * size;
 		bottomright = p - u * size + v * size;
@@ -78,9 +75,9 @@ bool FS_OFF_save_planes(const std::string & path, const std::vector<sPlane> & pl
 
 		// vert buffer
 		verts << topright.x << " " << topright.y << " " << topright.z << "\n";
-		verts << bottomright.x << " " << bottomright.y << " " << bottomright.z << "\n";
-		verts << bottomleft.x << " " << bottomleft.y << " " << bottomleft.z << "\n";
 		verts << topleft.x << " " << topleft.y << " " << topleft.z << "\n";
+		verts << bottomleft.x << " " << bottomleft.y << " " << bottomleft.z << "\n";
+		verts << bottomright.x << " " << bottomright.y << " " << bottomright.z << "\n";
 
         // face buffer
         faces << "4 " << index << " " << ++index << " " << ++index << " " << ++index << "\n";
@@ -97,4 +94,40 @@ bool FS_OFF_save_planes(const std::string & path, const std::vector<sPlane> & pl
 
 	return true;
 
+}
+
+bool FS_OFF_save_planes_normals(const std::string & path,
+                                const std::vector<sPlane> & planes,
+                                size_t count, float size)
+{
+	std::ofstream writer(path);
+
+	assert(writer.is_open());
+
+	writer << "OFF\n";
+	writer << planes.size() * (count + 1) << " 0 0\n";
+
+	auto it = planes.begin();
+	Vector3 point;
+
+	writer << std::fixed;
+
+	float dist_mult = size / (float) count;
+
+	while(it != planes.end())
+	{
+		const Vector3 & n = *((*it)->normal.get());
+		const Vector3 & p = *((*it)->center.get());
+		for(float i = 0; i <= count; i += 1)
+		{
+			point = p + n * (dist_mult * i);
+            writer << point.x << " " << point.y << " " << point.z << "\n";
+		}
+
+		it++;
+	}
+
+	writer.close();
+
+	return true;
 }

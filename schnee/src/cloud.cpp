@@ -105,58 +105,50 @@ void PC_compute_surface_from_covaraince(
 		std::cout << "lamb1: " << lamb1 << "\n";
 		std::cout << "lamb2: " << lamb2 << "\n";
 		std::cout << "lamb3: " << lamb3 << "\n";
-		if(lamb1 <= lamb2 && lamb1 <= lamb3)
+		if(lamb1 <= lamb2 && lamb2 <= lamb3)
 		{
 			ncol = 0;
-			if(lamb2 <= lamb3)
-			{
-                ucol = 1;
-                vcol = 2;
-			}
-			else
-			{
-                ucol = 2;
-                vcol = 1;
-			}
+			ucol = 1;
+			vcol = 2;
 		}
-		else if(lamb2 <= lamb3 && lamb2 <= lamb1)
+		else if(lamb1 <= lamb3 && lamb3 <= lamb2)
+		{
+			ncol = 0;
+			ucol = 2;
+			vcol = 1;
+		}
+		else if(lamb2 <= lamb3 && lamb3 <= lamb1)
 		{
 			ncol = 1;
-			if(lamb3 <= lamb1)
-			{
-				ucol = 2;
-				vcol = 0;
-			}
-			else
-			{
-                ucol = 0;
-                vcol = 2;
-			}
+			ucol = 2;
+			vcol = 0;
 		}
-		else
+		else if(lamb2 <= lamb1 && lamb1 <= lamb3)
 		{
-			assert(lamb3 <= lamb1);
-			assert(lamb3 <= lamb2);
+			ncol = 1;
+			ucol = 0;
+			vcol = 2;
+		}
+		else if(lamb3 <= lamb1 && lamb1 <= lamb2)
+		{
 			ncol = 2;
-			if(lamb1 <= lamb2)
-			{
-				ucol = 0;
-				vcol = 1;
-			}
-			else
-			{
-                ucol = 1;
-                vcol = 0;
-			}
-
+			ucol = 0;
+			vcol = 1;
+		}
+		else if(lamb3 <= lamb2 && lamb2 <= lamb1)
+		{
+			ncol = 2;
+			ucol = 1;
+			vcol = 0;
 		}
 
 		auto u = solver.pseudoEigenvectors().col(ucol);
 		auto v = solver.pseudoEigenvectors().col(vcol);
 		auto n = solver.pseudoEigenvectors().col(ncol);
 		output.normal = std::make_shared<Vector3>(n(0), n(1), n(2));
+		std::cout << "Normal: " << *(output.normal.get()) << "\n";
 		output.u = std::make_shared<Vector3>(u(0), u(1), u(2));
-		output.v = std::make_shared<Vector3>(v(0), v(1), v(2));
+		output.v = std::make_shared<Vector3>(Vector3::cross(*(output.normal.get()), *(output.u.get())));
 }
 
 void PLC_get_bounds(const PlaneCloud & plc,
