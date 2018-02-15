@@ -8,6 +8,11 @@ Vector3::Vector3(float px, float py, float pz) :
 
 }
 
+Vector3::Vector3(const Vector3 & other) : Vector3(other.x, other.y, other.z)
+{
+
+}
+
 Vector3::Vector3() : Vector3(0, 0, 0) { } ;
 
 float Vector3::distanceTo(const Vector3 & o) const
@@ -93,11 +98,27 @@ Vector3 &Vector3::operator+=(const Vector3 &b)
 	return *this;
 }
 
+Vector3 &Vector3::operator+=(const float &b)
+{
+	x += b;
+	y += b;
+	z += b;
+	return *this;
+}
+
 Vector3 &Vector3::operator-=(const Vector3 &b)
 {
 	x -= b.x;
 	y -= b.y;
 	z -= b.z;
+	return *this;
+}
+
+Vector3 &Vector3::operator-=(const float &b)
+{
+	x -= b;
+	y -= b;
+	z -= b;
 	return *this;
 }
 
@@ -121,6 +142,18 @@ Vector3 operator-(Vector3 a, const Vector3 &b)
 	return a;
 }
 
+Vector3 operator+(Vector3 a, float b)
+{
+	a += b;
+	return a;
+}
+
+Vector3 operator-(Vector3 a, float b)
+{
+	a -= b;
+	return a;
+}
+
 Vector3 operator/(Vector3 a, float b)
 {
 	a /= b;
@@ -137,6 +170,16 @@ Vector3 operator*(float b, Vector3 a)
 {
 	a *= b;
 	return a;
+}
+
+bool operator>=(const Vector3 & a, const Vector3 & b)
+{
+	return a.x >= b.x && a.y >= b.y && a.z >= b.z;
+}
+
+bool operator<=(const Vector3 & a, const Vector3 & b)
+{
+	return a.x <= b.x && a.y <= b.y && a.z <= b.z;
 }
 
 std::ostream &operator<<(std::ostream &a, const Vector3 &b)

@@ -10,6 +10,7 @@ class Vector3
 public:
 
 	Vector3(float, float, float);
+	Vector3(const Vector3 &);
 
 	Vector3();
 
@@ -36,14 +37,21 @@ public:
 
 	Vector3 &operator/= (const float& b);
 	Vector3 &operator+= (const Vector3& b);
+	Vector3 &operator+= (const float& b);
 	Vector3 &operator-= (const Vector3& b);
+	Vector3 &operator-= (const float& b);
 	Vector3 &operator*= (float b);
 
+	friend Vector3 operator+ (Vector3 a, float b);
+	friend Vector3 operator- (Vector3 a, float b);
 	friend Vector3 operator/ (Vector3 a, float b);
 	friend Vector3 operator* (Vector3 a, float b);
 	friend Vector3 operator* (float b, Vector3 a);
 	friend Vector3 operator- (Vector3 a, const Vector3& b);
 	friend Vector3 operator+ (Vector3 a, const Vector3& b);
+
+	friend bool operator>=(const Vector3&, const Vector3&);
+	friend bool operator<=(const Vector3&, const Vector3&);
 
     friend std::ostream& operator<< (std::ostream& a, const Vector3& b);
 
