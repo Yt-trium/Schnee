@@ -10,6 +10,9 @@
 TEST_CASE( "Kruskal" ) {
     Kruskal k;
 
+    k.setVertices(4);
+    k.setEdges(5);
+
     k.addEdge(0,1,10);
     k.addEdge(0,2,6);
     k.addEdge(0,3,5);
@@ -19,6 +22,7 @@ TEST_CASE( "Kruskal" ) {
     k.MST();
 }
 
+/*
 TEST_CASE( "PC_build_planes", "[point_cloud.h]" ) {
     PointCloud pc;
     std::vector<sPlane> planes;
@@ -73,3 +77,4 @@ TEST_CASE( "vectors can be sized and resized", "[vector]" ) {
         REQUIRE( v.capacity() >= 5 );
     }
 }
+*/

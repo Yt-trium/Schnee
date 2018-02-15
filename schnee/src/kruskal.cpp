@@ -1,20 +1,24 @@
 #include "kruskal.h"
 
-int max(int a, int b)
-{
-    return (a>b?a:b);
-}
-
 bool cmp_edges(Kruskal::KEdge a, Kruskal::KEdge b)
 {
     return (a.weight<b.weight);
 }
 
-
 Kruskal::Kruskal()
 {
     this->graph.E = 0;
     this->graph.V = 0;
+}
+
+void Kruskal::setEdges(int E)
+{
+    this->graph.E = E;
+}
+
+void Kruskal::setVertices(int V)
+{
+    this->graph.V = V;
 }
 
 void Kruskal::addEdge(int src, int dst, float weight)
@@ -24,29 +28,29 @@ void Kruskal::addEdge(int src, int dst, float weight)
     edge.dst = dst;
     edge.weight = weight;
     this->graph.edges.push_back(edge);
-    this->graph.E = max(this->graph.E,max(src,dst));
-    this->graph.V++;
 }
 
 void Kruskal::MST()
 {
-    KGraph result;
+    std::vector<KEdge> result;
+    int i = 0;
 
     std::sort(this->graph.edges.begin(),this->graph.edges.end(),cmp_edges);
 
+    /*
     std::cout << this->graph.E << std::endl;
     std::cout << this->graph.V << std::endl;
+    */
 
     std::vector<KSubset> subsets;
-    subsets.resize(this->graph.V+1);
+    subsets.resize(this->graph.V);
 
-    for (int v = 0; v < this->graph.V+1; ++v)
+    for (int v = 0; v < this->graph.V; ++v)
     {
         subsets[v].parent = v;
         subsets[v].rank = 0;
     }
-    int i = 0, e = 0;
-    while (this->graph.E < this->graph.V)
+    while (result.size() < this->graph.V - 1)
         {
             KEdge next_edge = this->graph.edges[i++];
 
@@ -54,10 +58,17 @@ void Kruskal::MST()
             int y = find(subsets, next_edge.dst);
             if (x != y)
             {
-                result.edges[e++] = next_edge;
-                set_union(subsets, x, y);
+                result.push_back(next_edge);
+                set_union(&subsets, x, y);
             }
         }
+
+    std::cout << "MST :" << std::endl;
+    for (i = 0; i < result.size(); ++i)
+        std::cout << result[i].src << " -- "
+                  << result[i].dst << " = "
+                  << result[i].weight << std::endl;
+
 }
 
 int Kruskal::find(std::vector<KSubset> subsets, int i)
@@ -68,19 +79,19 @@ int Kruskal::find(std::vector<KSubset> subsets, int i)
     return subsets[i].parent;
 }
 
-void Kruskal::set_union(std::vector<KSubset> subsets, int x, int y)
+void Kruskal::set_union(std::vector<KSubset> *subsets, int x, int y)
 {
-    int xroot = find(subsets, x);
-    int yroot = find(subsets, y);
+    int xroot = find(*subsets, x);
+    int yroot = find(*subsets, y);
 
-    if (subsets[xroot].rank < subsets[yroot].rank)
-        subsets[xroot].parent = yroot;
-    else if (subsets[xroot].rank > subsets[yroot].rank)
-        subsets[yroot].parent = xroot;
+    if ((*subsets)[xroot].rank < (*subsets)[yroot].rank)
+        (*subsets)[xroot].parent = yroot;
+    else if ((*subsets)[xroot].rank > (*subsets)[yroot].rank)
+        (*subsets)[yroot].parent = xroot;
 
     else
     {
-        subsets[yroot].parent = xroot;
-        subsets[xroot].rank++;
+        (*subsets)[yroot].parent = xroot;
+        (*subsets)[xroot].rank++;
     }
 }

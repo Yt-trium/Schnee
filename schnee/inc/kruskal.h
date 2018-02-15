@@ -5,12 +5,34 @@
 #include <vector>
 #include <algorithm>
 
+/**
+ * @brief The Kruskal class, generic Kruskal's Algorithm implementation
+ */
 class Kruskal
 {
 public:
     Kruskal();
 
+    /**
+     * @brief setEdges number
+     * @param E
+     */
+    void setEdges(int E);
+    /**
+     * @brief setVertices number
+     * @param V
+     */
+    void setVertices(int V);
+    /**
+     * @brief addEdge
+     * @param src
+     * @param dst
+     * @param weight
+     */
     void addEdge(int src, int dst, float weight);
+    /**
+     * @brief Compute the Minimum Spanning Tree
+     */
     void MST();
 
     /**
@@ -46,11 +68,28 @@ public:
 private:
     KGraph graph;
 
+    /**
+     * @brief find set of an element
+     * @param subsets
+     * @param i
+     * @return
+     */
     int find(std::vector<KSubset> subsets, int i);
-    void set_union(std::vector<KSubset> subsets, int x, int y);
+    /**
+     * @brief set_union union of two sets
+     * @param subsets
+     * @param x
+     * @param y
+     */
+    void set_union(std::vector<KSubset> *subsets, int x, int y);
 };
 
-int max(int a, int b);
+/**
+ * @brief cmp_edges compare Kruskal::KEdge for std::sort
+ * @param a
+ * @param b
+ * @return
+ */
 bool cmp_edges(Kruskal::KEdge a, Kruskal::KEdge b);
 
 #endif // KRUSKAL_H
