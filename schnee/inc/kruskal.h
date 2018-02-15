@@ -14,28 +14,6 @@ public:
     Kruskal();
 
     /**
-     * @brief setEdges number
-     * @param E
-     */
-    void setEdges(int E);
-    /**
-     * @brief setVertices number
-     * @param V
-     */
-    void setVertices(int V);
-    /**
-     * @brief addEdge
-     * @param src
-     * @param dst
-     * @param weight
-     */
-    void addEdge(int src, int dst, float weight);
-    /**
-     * @brief Compute the Minimum Spanning Tree
-     */
-    void MST();
-
-    /**
      * @brief The KEdge class : Edge for the Kruskal MST algorithm
      */
     class KEdge
@@ -64,6 +42,28 @@ public:
         int parent;
         int rank;
     };
+
+    /**
+     * @brief setEdges number
+     * @param E
+     */
+    void setEdges(int E);
+    /**
+     * @brief setVertices number
+     * @param V
+     */
+    void setVertices(int V);
+    /**
+     * @brief addEdge
+     * @param src
+     * @param dst
+     * @param weight
+     */
+    void addEdge(int src, int dst, float weight);
+    /**
+     * @brief Compute the Minimum Spanning Tree
+     */
+    std::vector<KEdge> MST();
 
 private:
     KGraph graph;

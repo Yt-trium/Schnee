@@ -30,7 +30,7 @@ void Kruskal::addEdge(int src, int dst, float weight)
     this->graph.edges.push_back(edge);
 }
 
-void Kruskal::MST()
+std::vector<Kruskal::KEdge> Kruskal::MST()
 {
     std::vector<KEdge> result;
     int i = 0;
@@ -62,13 +62,14 @@ void Kruskal::MST()
                 set_union(&subsets, x, y);
             }
         }
-
+    /*
     std::cout << "MST :" << std::endl;
     for (i = 0; i < result.size(); ++i)
         std::cout << result[i].src << " -- "
                   << result[i].dst << " = "
                   << result[i].weight << std::endl;
-
+    */
+    return result;
 }
 
 int Kruskal::find(std::vector<KSubset> subsets, int i)

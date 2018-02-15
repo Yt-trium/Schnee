@@ -9,7 +9,7 @@
 
 TEST_CASE( "Kruskal" ) {
     Kruskal k;
-
+    std::vector<Kruskal::KEdge> r;
     k.setVertices(4);
     k.setEdges(5);
 
@@ -19,7 +19,25 @@ TEST_CASE( "Kruskal" ) {
     k.addEdge(1,3,15);
     k.addEdge(2,3,4);
 
-    k.MST();
+    r = k.MST();
+
+    REQUIRE( r.size() == 3 );
+
+    SECTION( "edge 1" ) {
+        REQUIRE( r.at(0).src == 2 );
+        REQUIRE( r.at(0).dst == 3 );
+        REQUIRE( r.at(0).weight == 4 );
+    }
+    SECTION( "edge 2" ) {
+        REQUIRE( r.at(1).src == 0 );
+        REQUIRE( r.at(1).dst == 3 );
+        REQUIRE( r.at(1).weight == 5 );
+    }
+    SECTION( "edge 3" ) {
+        REQUIRE( r.at(2).src == 0 );
+        REQUIRE( r.at(2).dst == 1 );
+        REQUIRE( r.at(2).weight == 10 );
+    }
 }
 
 /*
