@@ -27,6 +27,13 @@ TEST_CASE("Grid edges")
 	grid->create_cells();
 	REQUIRE(cells.size() == 2 * 2 * 2);
 
+	SECTION("Test point values")
+	{
+		sCell cell = cells[0];
+		REQUIRE(*(cell->edges[4]->va.get()) == Vector3(0, 0, 0));
+
+	}
+
 	SECTION("Test common edges in (0, 0, 0)")
 	{
 		sCell cell = cells[0];
@@ -263,105 +270,35 @@ TEST_CASE("Grid edges")
 		}
 	}
 
-	SECTION("Test common points in (0, 0, 0)")
+	SECTION("Test common points in all cells")
 	{
-		sCell cell = cells[0];
-		REQUIRE(cell->edges[0]->va == cell->edges[8]->va);
-		REQUIRE(cell->edges[0]->vb == cell->edges[1]->va);
-		REQUIRE(cell->edges[1]->va == cell->edges[0]->vb);
-		REQUIRE(cell->edges[1]->vb == cell->edges[2]->va);
-		REQUIRE(cell->edges[3]->va == cell->edges[10]->va);
-		REQUIRE(cell->edges[3]->vb == cell->edges[0]->va);
-		REQUIRE(cell->edges[4]->va == cell->edges[7]->vb);
-		REQUIRE(cell->edges[4]->vb == cell->edges[9]->vb);
-		REQUIRE(cell->edges[5]->va == cell->edges[4]->vb);
-		REQUIRE(cell->edges[5]->vb == cell->edges[6]->va);
-		REQUIRE(cell->edges[6]->va == cell->edges[11]->vb);
-		REQUIRE(cell->edges[6]->vb == cell->edges[10]->vb);
-		REQUIRE(cell->edges[7]->va == cell->edges[10]->vb);
-		REQUIRE(cell->edges[7]->vb == cell->edges[8]->vb);
-		REQUIRE(cell->edges[8]->va == cell->edges[3]->vb);
-		REQUIRE(cell->edges[8]->vb == cell->edges[7]->vb);
-		REQUIRE(cell->edges[9]->va == cell->edges[0]->vb);
-		REQUIRE(cell->edges[9]->vb == cell->edges[5]->va);
-		REQUIRE(cell->edges[10]->va == cell->edges[2]->vb);
-		REQUIRE(cell->edges[10]->vb == cell->edges[7]->va);
-		REQUIRE(cell->edges[11]->va == cell->edges[1]->vb);
-		REQUIRE(cell->edges[11]->vb == cell->edges[6]->va);
-
-		REQUIRE(cell->edges[4]->va != cell->edges[2]->vb);
-		REQUIRE(cell->edges[4]->vb != cell->edges[2]->vb);
-		REQUIRE(cell->edges[6]->va != cell->edges[0]->vb);
-		REQUIRE(cell->edges[6]->vb != cell->edges[0]->vb);
-	}
-
-
-	SECTION("Test common points in (1, 0, 0)")
-	{
-		sCell cell = cells[1];
-		REQUIRE(cell->edges[0]->va == cell->edges[8]->va);
-		REQUIRE(cell->edges[0]->vb == cell->edges[1]->va);
-		REQUIRE(cell->edges[1]->va == cell->edges[0]->vb);
-		REQUIRE(cell->edges[1]->vb == cell->edges[2]->va);
-		REQUIRE(cell->edges[3]->va == cell->edges[10]->va);
-		REQUIRE(cell->edges[3]->vb == cell->edges[0]->va);
-		REQUIRE(cell->edges[4]->va == cell->edges[7]->vb);
-		REQUIRE(cell->edges[4]->vb == cell->edges[9]->vb);
-		REQUIRE(cell->edges[5]->va == cell->edges[4]->vb);
-		REQUIRE(cell->edges[5]->vb == cell->edges[6]->va);
-		REQUIRE(cell->edges[6]->va == cell->edges[11]->vb);
-		REQUIRE(cell->edges[6]->vb == cell->edges[10]->vb);
-		REQUIRE(cell->edges[7]->va == cell->edges[10]->vb);
-		REQUIRE(cell->edges[7]->vb == cell->edges[8]->vb);
-		REQUIRE(cell->edges[8]->va == cell->edges[3]->vb);
-		REQUIRE(cell->edges[8]->vb == cell->edges[7]->vb);
-		REQUIRE(cell->edges[9]->va == cell->edges[0]->vb);
-		REQUIRE(cell->edges[9]->vb == cell->edges[5]->va);
-		REQUIRE(cell->edges[10]->va == cell->edges[2]->vb);
-		REQUIRE(cell->edges[10]->vb == cell->edges[7]->va);
-		REQUIRE(cell->edges[11]->va == cell->edges[1]->vb);
-		REQUIRE(cell->edges[11]->vb == cell->edges[6]->va);
-
-		REQUIRE(cell->edges[4]->va != cell->edges[2]->vb);
-		REQUIRE(cell->edges[4]->vb != cell->edges[2]->vb);
-		REQUIRE(cell->edges[6]->va != cell->edges[0]->vb);
-		REQUIRE(cell->edges[6]->vb != cell->edges[0]->vb);
-	}
-
-	return ;
-	SECTION("Test common points in (1, 1, 1)")
-	{
-		sCell cellRoot = cells[7];
-		REQUIRE(cellRoot->edges[0]->va == cellRoot->edges[8]->va);
-		REQUIRE(cellRoot->edges[0]->vb == cellRoot->edges[1]->va);
-		REQUIRE(cellRoot->edges[1]->va == cellRoot->edges[0]->vb);
-		REQUIRE(cellRoot->edges[1]->vb == cellRoot->edges[2]->va);
-		REQUIRE(cellRoot->edges[3]->va == cellRoot->edges[10]->va);
-		REQUIRE(cellRoot->edges[3]->vb == cellRoot->edges[0]->va);
-		REQUIRE(cellRoot->edges[4]->va == cellRoot->edges[7]->vb);
-		REQUIRE(cellRoot->edges[4]->vb == cellRoot->edges[9]->vb);
-		REQUIRE(cellRoot->edges[5]->va == cellRoot->edges[4]->vb);
-		REQUIRE(cellRoot->edges[5]->vb == cellRoot->edges[6]->va);
-		REQUIRE(cellRoot->edges[6]->va == cellRoot->edges[11]->vb);
-		REQUIRE(cellRoot->edges[6]->vb == cellRoot->edges[10]->vb);
-		REQUIRE(cellRoot->edges[7]->va == cellRoot->edges[10]->vb);
-		REQUIRE(cellRoot->edges[7]->vb == cellRoot->edges[8]->vb);
-		REQUIRE(cellRoot->edges[8]->va == cellRoot->edges[3]->vb);
-		REQUIRE(cellRoot->edges[8]->vb == cellRoot->edges[7]->vb);
-		REQUIRE(cellRoot->edges[9]->va == cellRoot->edges[0]->vb);
-		REQUIRE(cellRoot->edges[9]->vb == cellRoot->edges[5]->va);
-		REQUIRE(cellRoot->edges[10]->va == cellRoot->edges[2]->vb);
-		REQUIRE(cellRoot->edges[10]->vb == cellRoot->edges[7]->va);
-		REQUIRE(cellRoot->edges[11]->va == cellRoot->edges[1]->vb);
-		REQUIRE(cellRoot->edges[11]->vb == cellRoot->edges[6]->va);
-
-		REQUIRE(cellRoot->edges[4]->va != cellRoot->edges[2]->vb);
-		REQUIRE(cellRoot->edges[4]->vb != cellRoot->edges[2]->vb);
-		REQUIRE(cellRoot->edges[6]->va != cellRoot->edges[0]->vb);
-		REQUIRE(cellRoot->edges[6]->vb != cellRoot->edges[0]->vb);
-	}
-
-
+		for(int i = 0; i < cells.size(); i++)
+		{
+			std::cout << "Testing cell number " << i << "\n";
+            REQUIRE(cells[i]->edges[0]->va == cells[i]->edges[1]->va);
+            REQUIRE(cells[i]->edges[0]->vb == cells[i]->edges[8]->va);
+            REQUIRE(cells[i]->edges[1]->va == cells[i]->edges[0]->va);
+            REQUIRE(cells[i]->edges[1]->vb == cells[i]->edges[2]->va);
+            REQUIRE(cells[i]->edges[3]->va == cells[i]->edges[8]->va);
+            REQUIRE(cells[i]->edges[3]->vb == cells[i]->edges[10]->va);
+            REQUIRE(cells[i]->edges[4]->va == cells[i]->edges[9]->vb);
+            REQUIRE(cells[i]->edges[4]->vb == cells[i]->edges[7]->va);
+            REQUIRE(cells[i]->edges[5]->va == cells[i]->edges[4]->va);
+            REQUIRE(cells[i]->edges[5]->vb == cells[i]->edges[6]->va);
+            REQUIRE(cells[i]->edges[6]->va == cells[i]->edges[11]->vb);
+            REQUIRE(cells[i]->edges[6]->vb == cells[i]->edges[10]->vb);
+            REQUIRE(cells[i]->edges[7]->va == cells[i]->edges[8]->vb);
+            REQUIRE(cells[i]->edges[7]->vb == cells[i]->edges[6]->vb);
+            REQUIRE(cells[i]->edges[8]->va == cells[i]->edges[3]->va);
+            REQUIRE(cells[i]->edges[8]->vb == cells[i]->edges[7]->va);
+            REQUIRE(cells[i]->edges[9]->va == cells[i]->edges[0]->va);
+            REQUIRE(cells[i]->edges[9]->vb == cells[i]->edges[5]->va);
+            REQUIRE(cells[i]->edges[10]->va == cells[i]->edges[2]->vb);
+            REQUIRE(cells[i]->edges[10]->vb == cells[i]->edges[7]->vb);
+            REQUIRE(cells[i]->edges[11]->va == cells[i]->edges[1]->vb);
+            REQUIRE(cells[i]->edges[11]->vb == cells[i]->edges[6]->va);
+        }
+    }
 
 }
 

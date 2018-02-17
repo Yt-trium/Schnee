@@ -130,6 +130,11 @@ Vector3 &Vector3::operator*=(float b)
 	return *this;
 }
 
+bool Vector3::operator==(const Vector3 & a) const
+{
+	return a.x == x && a.y == y && a.z == z;
+}
+
 Vector3 operator+(Vector3 a, const Vector3 &b)
 {
 	a += b;
@@ -181,6 +186,7 @@ bool operator<=(const Vector3 & a, const Vector3 & b)
 {
 	return a.x <= b.x && a.y <= b.y && a.z <= b.z;
 }
+
 
 std::ostream &operator<<(std::ostream &a, const Vector3 &b)
 {

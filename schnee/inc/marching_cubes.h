@@ -35,15 +35,15 @@ public:
 	 *
 	 * From the same point of view, these are the edges index
 	 * FRONT: + Z
-	 * 0 : left     (top left       -> bottom left)
+	 * 0 : left     (bottom left       -> top left)
 	 * 1 : bottom   (bottom left    -> bottom right)
 	 * 2 : right    (bottom right   -> top right)
-	 * 3 : top      (top right      -> top left)
+	 * 3 : top      (top left      -> top right)
 	 * BACK: - Z
-	 * 4 : left     (top left       -> bottom left)
+	 * 4 : left     (bottom left       -> top left)
 	 * 5 : bottom   (bottom left    -> bottom right)
 	 * 6 : right    (bottom right   -> top right)
-	 * 7 : top      (top right      -> top left)
+	 * 7 : top      (top left      -> top right)
 	 * LEFT: - X
 	 * 8 : top      (top front left     -> top back left)
 	 * 9 : bottom   (bottom front left  -> bottom back left)
