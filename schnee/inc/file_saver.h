@@ -3,6 +3,7 @@
 
 #include "vector.h"
 #include "plane.h"
+#include "marching_cubes.h"
 
 #include <string>
 #include <vector>
@@ -19,6 +20,8 @@ bool FS_OFF_save_planes(const std::string &, const std::vector<sPlane> &, float 
 
 bool FS_OFF_save_planes_normals(const std::string &, const std::vector<sPlane> &, size_t = 5, float = 1.0f);
 
-bool FS_OFF_save_grid_distances(const std::string &, const std::vector<sVector3> &, const std::vector<float> &);
+bool FS_OFF_save_vector_values(const std::string &, const std::vector<sVector3> &, const std::vector<float> &);
+
+bool FS_OFF_save_cells_position(const std::string &, const std::vector<sCell>&);
 
 #endif

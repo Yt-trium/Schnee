@@ -61,10 +61,10 @@ int main(int argc, const char * argv[])
 	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(10));
 	index.buildIndex();
 
-	// Get bounding box
-	// Prepare marching cubes
+	// marching cubes
 	std::vector<sGrid> grids;
-	MC_create_cubes(plc, index, grids, cell_size);
+	sGrid grid = std::make_shared<Grid>(plc, cell_size);
+	grid->create_cells(index);
 
 	// Calculate signed distance function
 	//std::vector<float> signedFunctions()
@@ -82,6 +82,7 @@ int main(int argc, const char * argv[])
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 5, 0.06f);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
+	FS_OFF_save_cells_position("/tmp/out.grid.corners.off", grid->cells());
 
 	return 0;
 }

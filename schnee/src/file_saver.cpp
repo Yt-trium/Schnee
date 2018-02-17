@@ -1,8 +1,11 @@
 #include "file_saver.h"
+#include "marching_cubes.h"
 
 #include <fstream>
 #include <sstream>
 #include <cassert>
+#include <vector>
+#include <algorithm>
 
 bool FS_OFF_save_points(const std::string & path, const std::vector<sVector3> & points)
 {
@@ -132,7 +135,7 @@ bool FS_OFF_save_planes_normals(const std::string & path,
 	return true;
 }
 
-bool FS_OFF_save_grid_distances(const std::string & path, const std::vector<sVector3> & corners,
+bool FS_OFF_save_vector_values(const std::string & path, const std::vector<sVector3> & corners,
                                 const std::vector<float> & distances)
 {
 	assert(distances.size() == corners.size());
@@ -176,6 +179,48 @@ bool FS_OFF_save_grid_distances(const std::string & path, const std::vector<sVec
 
 		}
 	}
+
+	writer.close();
+
+	return true;
+
+}
+
+bool FS_OFF_save_cells_position(const std::string & path, const std::vector<sCell> & cells)
+{
+	std::ofstream writer(path);
+
+	assert(writer.is_open());
+
+	writer << "OFF\n";
+
+	size_t count_point = 0;
+	std::stringstream verts;
+    verts << std::fixed;
+	std::vector<sCellEdge> writenEdges;
+
+	for(int i = 0; i < cells.size(); ++i)
+	{
+		const sCell & c = cells[i];
+		for(int j = 0; j < 8; ++j)
+		{
+			const sCellEdge & e = c->edges.at(j);
+			if(std::find(writenEdges.begin(), writenEdges.end(), e) == writenEdges.end())
+			{
+				writenEdges.push_back(e);
+				count_point += 2;
+				// Write E
+				const sVector3 & a = e->va;
+				const sVector3 & b = e->vb;
+				verts << a->x << " " << a->y << " " << a->z << "\n";
+				verts << b->x << " " << b->y << " " << b->z << "\n";
+			}
+		}
+	}
+
+	writer << count_point << " 0 0\n";
+	writer << std::fixed;
+	writer << verts.rdbuf();
 
 	writer.close();
 

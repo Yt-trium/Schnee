@@ -2,53 +2,63 @@
 
 #include "file_saver.h"
 
-void MC_create_cubes(const PlaneCloud & plc,
-                     const plane_cloud_index & index,
-                     std::vector<sGrid> & grids, float cell_size)
+Grid::Grid(const PlaneCloud & plc, float cell_size) :
+    _plc(plc), _csize(cell_size), _hcsize(cell_size * 0.5f)
+{
+	PLC_get_bounds(_plc,
+	               _bbox_min.x, _bbox_min.y, _bbox_min.z,
+	               _bbox_max.x, _bbox_max.y, _bbox_max.z);
+	std::cout << "BBOX MIN " << _bbox_min << "\n";
+	std::cout << "BBOX MAX " << _bbox_max << "\n";
+	_size_x = std::ceil((_bbox_max.x - _bbox_min.x ) / _csize + 1);
+	_size_y = std::ceil((_bbox_max.y - _bbox_min.y ) / _csize + 1);
+	_size_z = std::ceil((_bbox_max.z - _bbox_min.z ) / _csize + 1);
+	std::cout << "NBCELLS : " << _size_x << " / " << _size_y << " / " << _size_z << "\n";
+
+	// Checks
+	assert(_bbox_min.x + _csize * _size_x >= _bbox_max.x);
+	assert(_bbox_min.y + _csize * _size_y >= _bbox_max.y);
+	assert(_bbox_min.z + _csize * _size_z >= _bbox_max.z);
+	std::cout << "TOTAL NB CELLS2: " <<
+	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x << "\n";
+	std::cout << std::endl;
+	assert(_size_x * _size_y * _size_z ==
+	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x);
+
+}
+
+void Grid::create_cells(const plane_cloud_index & index)
 {
 	// Create only cubes intersecting the mesh
 
-	// Get bounding box
-	Vector3 bbox_min;
-	Vector3 bbox_max;
-	PLC_get_bounds(plc,
-	               bbox_min.x, bbox_min.y, bbox_min.z,
-	               bbox_max.x, bbox_max.y, bbox_max.z);
-	std::cout << "BBOX MIN " << bbox_min << "\n";
-	std::cout << "BBOX MAX " << bbox_max << "\n";
-
-	// Calculate "cells"
-	float nb_cell_x = std::ceil((bbox_max.x - bbox_min.x ) / cell_size + 1);
-	float nb_cell_y = std::ceil((bbox_max.y - bbox_min.y ) / cell_size + 1);
-	float nb_cell_z = std::ceil((bbox_max.z - bbox_min.z ) / cell_size + 1);
-	std::cout << "NBCELLS : " << nb_cell_x << " / " << nb_cell_y << " / " << nb_cell_z << "\n";
-
 	// Debug "cells"
-	std::vector<sVector3> corners(nb_cell_x * nb_cell_y * nb_cell_z);
+	std::vector<sVector3> corners;
 	std::vector<sVector3> cell_centers;
 
 	Vector3 cell_center;
-	assert(bbox_min.x + cell_size * nb_cell_x >= bbox_max.x);
-	assert(bbox_min.y + cell_size * nb_cell_y >= bbox_max.y);
-	assert(bbox_min.z + cell_size * nb_cell_z >= bbox_max.z);
-	std::cout << "TOTAL NB CELLS: " << corners.size() << "\n";
-	std::cout << "TOTAL NB CELLS2: " <<
-	             (nb_cell_z - 1) * (nb_cell_x * nb_cell_y) + (nb_cell_y - 1) * nb_cell_x + nb_cell_x << "\n";
-	std::cout << std::endl;
-	assert(corners.size() ==
-	             (nb_cell_z - 1) * (nb_cell_x * nb_cell_y) + (nb_cell_y - 1) * nb_cell_x + nb_cell_x);
 
-	float hcsize = cell_size * 0.5f;
+	float h_csize = _csize * 0.5f;
+	float squared_csize = _csize * _csize;
 
 	Vector3 directions[8] = {
-	    Vector3(1, 1, 1) * hcsize,
-	    Vector3(1, 1, -1) * hcsize,
-	    Vector3(1, -1, 1) * hcsize,
-	    Vector3(1, -1, -1) * hcsize,
-	    Vector3(-1, 1, 1) * hcsize,
-	    Vector3(-1, 1, -1) * hcsize,
-	    Vector3(-1, -1, 1) * hcsize,
-	    Vector3(-1, -1, -1) * hcsize
+	    // FRONT
+	    // Left top 0
+	    Vector3(-1, 1, 1) * h_csize,
+	    // Left bottom 1
+	    Vector3(-1, -1, 1) * h_csize,
+	    // Right bottom 2
+	    Vector3(1, -1, 1) * h_csize,
+	    // Right top 3
+	    Vector3(1, 1, 1) * h_csize,
+	    // BACK
+	    // Left top 4
+	    Vector3(-1, 1, -1) * h_csize,
+	    // Left bottom 5
+	    Vector3(-1, -1, -1) * h_csize,
+	    // Right bottom 6
+	    Vector3(1, -1, -1) * h_csize,
+	    // Right top 7
+	    Vector3(1, 1, -1) * h_csize
 	};
 	const size_t            num_results = 1;
     std::vector<size_t>     ret_index(num_results);
@@ -57,31 +67,98 @@ void MC_create_cubes(const PlaneCloud & plc,
 	float                 kd_query[3] =
 	    {cell_center.x, cell_center.y, cell_center.z};
 
-	for(float z = 0; z < nb_cell_z; z+=1)
-	{
-        cell_center.z = kd_query[2] = bbox_min.z + z * cell_size;
-        for(float y = 0; y < nb_cell_y; y+=1)
-        {
-			cell_center.y = kd_query[1] = bbox_min.y + y * cell_size;
-            for(float x = 0; x < nb_cell_x; x+=1)
-            {
-                cell_center.x = kd_query[0] = bbox_min.x + x * cell_size;
-                corners[z * (nb_cell_x * nb_cell_y) + y * nb_cell_x + x] = std::make_shared<Vector3>(cell_center);
+	sCell current_cell;
+	sCellEdge current_edge;
 
+	for(float z = 0; z < _size_z; z+=1)
+	{
+        cell_center.z = kd_query[2] = _bbox_min.z + z * _csize;
+        for(float y = 0; y < _size_y; y+=1)
+        {
+			cell_center.y = kd_query[1] = _bbox_min.y + y * _csize;
+            for(float x = 0; x < _size_x; x+=1)
+            {
+                cell_center.x = kd_query[0] = _bbox_min.x + x * _csize;
+
+				current_cell = std::make_shared<Cell>();
+				// Left front edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[0]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[1]);
+				current_cell->edges.push_back(current_edge);
+				// Bottom front edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[1]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[2]);
+				current_cell->edges.push_back(current_edge);
+				// Right front edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[2]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[3]);
+				current_cell->edges.push_back(current_edge);
+				// Top front edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[3]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[0]);
+				current_cell->edges.push_back(current_edge);
+				// Back left edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[5]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[4]);
+				current_cell->edges.push_back(current_edge);
+				// Back bottom edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[5]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[6]);
+				current_cell->edges.push_back(current_edge);
+				// Back right edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[6]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[7]);
+				current_cell->edges.push_back(current_edge);
+				// Back top edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[7]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[4]);
+				current_cell->edges.push_back(current_edge);
+				// Left top edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[0]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[4]);
+				current_cell->edges.push_back(current_edge);
+				// Left bottom edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[1]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[5]);
+				current_cell->edges.push_back(current_edge);
+				// Right top edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[3]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[7]);
+				current_cell->edges.push_back(current_edge);
+				// Right bottom edge
+                current_edge = std::make_shared<CellEdge>();
+                current_edge->va = std::make_shared<Vector3>(cell_center + directions[6]);
+                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[2]);
+				current_cell->edges.push_back(current_edge);
+				_cells.push_back(current_cell);
+
+# if 0
 				// Test if any point in cell
                 nbhd_count = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
                 assert(nbhd_count == num_results);
 
+				if(out_squared_dist[0] > squared_csize)
+					continue;
+# endif
 
-				sGrid grid = std::make_shared<Grid>();
-				for(int i = 0; i < 8; i++)
-                    grid->corners.emplace_back(new Vector3(cell_center + directions[i]));
-				grids.push_back(grid);
+				//sGrid grid = std::make_shared<Grid>();
+				//for(int i = 0; i < 8; i++)
+                    //grid->corners.emplace_back(new Vector3(cell_center + directions[i]));
+				//grids.push_back(grid);
             }
         }
 	}
-
-    FS_OFF_save_points("/tmp/out.cells.corners.off", corners);
 
 }
 
@@ -89,3 +166,4 @@ bool MC_is_point_in_cell(const Vector3 & point, const Vector3 & cell, const floa
 {
 	return point <= cell + radius && point >= cell - radius;
 }
+
