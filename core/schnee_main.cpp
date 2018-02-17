@@ -63,8 +63,12 @@ int main(int argc, const char * argv[])
 
 	// marching cubes
 	std::vector<sGrid> grids;
-	sGrid grid = std::make_shared<Grid>(plc, cell_size);
-	grid->create_cells(index);
+	Vector3 bbox_min, bbox_max;
+	PLC_get_bounds(plc,
+	               bbox_min.x, bbox_min.y, bbox_min.z,
+	               bbox_max.x, bbox_max.y, bbox_max.z);
+	sGrid grid = std::make_shared<Grid>(bbox_min, bbox_max, cell_size);
+	grid->create_cells();
 
 	// Calculate signed distance function
 	//std::vector<float> signedFunctions()

@@ -197,23 +197,30 @@ bool FS_OFF_save_cells_position(const std::string & path, const std::vector<sCel
 	size_t count_point = 0;
 	std::stringstream verts;
     verts << std::fixed;
-	std::vector<sCellEdge> writenEdges;
+	std::vector<Vector3 *> writenPoints;
 
+	Vector3 * va, * vb;
 	for(int i = 0; i < cells.size(); ++i)
 	{
 		const sCell & c = cells[i];
 		for(int j = 0; j < 8; ++j)
 		{
 			const sCellEdge & e = c->edges.at(j);
-			if(std::find(writenEdges.begin(), writenEdges.end(), e) == writenEdges.end())
+			va = e->va.get();
+			vb = e->vb.get();
+
+			if(std::find(writenPoints.begin(), writenPoints.end(), va) == writenPoints.end())
 			{
-				writenEdges.push_back(e);
-				count_point += 2;
-				// Write E
-				const sVector3 & a = e->va;
-				const sVector3 & b = e->vb;
-				verts << a->x << " " << a->y << " " << a->z << "\n";
-				verts << b->x << " " << b->y << " " << b->z << "\n";
+				writenPoints.push_back(va);
+				count_point++;
+				verts << va->x << " " << va->y << " " << va->z << "\n";
+			}
+
+			if(std::find(writenPoints.begin(), writenPoints.end(), vb) == writenPoints.end())
+			{
+				writenPoints.push_back(vb);
+				count_point++;
+				verts << vb->x << " " << vb->y << " " << vb->z << "\n";
 			}
 		}
 	}

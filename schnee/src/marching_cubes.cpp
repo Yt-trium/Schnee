@@ -2,12 +2,10 @@
 
 #include "file_saver.h"
 
-Grid::Grid(const PlaneCloud & plc, float cell_size) :
-    _plc(plc), _csize(cell_size), _hcsize(cell_size * 0.5f)
+Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) :
+    _bbox_min(bbox_min), _bbox_max(bbox_max),
+    _csize(cell_size), _hcsize(cell_size * 0.5f)
 {
-	PLC_get_bounds(_plc,
-	               _bbox_min.x, _bbox_min.y, _bbox_min.z,
-	               _bbox_max.x, _bbox_max.y, _bbox_max.z);
 	std::cout << "BBOX MIN " << _bbox_min << "\n";
 	std::cout << "BBOX MAX " << _bbox_max << "\n";
 	_size_x = std::ceil((_bbox_max.x - _bbox_min.x ) / _csize + 1);
@@ -27,25 +25,104 @@ Grid::Grid(const PlaneCloud & plc, float cell_size) :
 
 }
 
-void Grid::create_cells(const plane_cloud_index & index)
+static void MC_create_loop_edge(
+        sCell & cell, size_t start, size_t end,
+        const Vector3 & cell_center,
+        const Vector3 * directions,
+        const std::pair<int, int> * connections
+        )
+{
+	sCellEdge current_edge;
+    for(int i = start; i < end; i++)
+    {
+        current_edge = std::make_shared<CellEdge>();
+		if(i == start)
+            current_edge->va = std::make_shared<Vector3>(cell_center + directions[connections[i].first]);
+		else
+			current_edge->va = cell->edges[i -1]->vb;
+		if(i == end -1)
+			current_edge->vb = cell->edges[start]->va;
+		else
+            current_edge->vb = std::make_shared<Vector3>(cell_center + directions[connections[i].second]);
+        cell->edges[i] = current_edge;
+    }
+}
+
+static void MC_create_edge(
+        sCell & cell, const size_t & edge,
+        const Vector3 & cell_center,
+        const Vector3 * directions,
+        const std::pair<int, int> * connections
+        )
+{
+	sCellEdge cedge;
+	cedge = std::make_shared<CellEdge>();
+	cedge->va = std::make_shared<Vector3>(cell_center + directions[connections[edge].first]);
+	cedge->vb = std::make_shared<Vector3>(cell_center + directions[connections[edge].second]);
+	cell->edges[edge] = cedge;
+}
+
+static void MC_create_edge_from_a(
+        sCell & new_cell,
+        const size_t & edge,
+        const size_t & edge_for_a, const size_t & edge_for_b)
+{
+	sCellEdge sedge = std::make_shared<CellEdge>();
+	sedge->va = new_cell->edges[edge_for_a]->va;
+	sedge->vb = new_cell->edges[edge_for_b]->va;
+	new_cell->edges[edge] = sedge;
+}
+
+static void MC_create_edge_from_b(
+        sCell & new_cell,
+        const size_t & edge,
+        const size_t & edge_for_a, const size_t & edge_for_b)
+{
+	sCellEdge sedge = std::make_shared<CellEdge>();
+	sedge->va = new_cell->edges[edge_for_a]->vb;
+	sedge->vb = new_cell->edges[edge_for_b]->vb;
+	new_cell->edges[edge] = sedge;
+}
+
+static void MC_link_edges(
+        sCell & new_cell,
+        sCell & parent_cell,
+        size_t start, size_t end,
+        size_t start_parent)
+{
+	for(int i = start, j = start_parent; i < end; i++, j++)
+	{
+		new_cell->edges[i] = parent_cell->edges[j];
+	}
+}
+
+static void MC_link_edge(
+        sCell & new_cell,
+        sCell & parent_cell,
+        size_t a, size_t b)
+{
+	new_cell->edges[a] = parent_cell->edges[b];
+}
+
+void Grid::create_cells()
 {
 	static std::pair<int, int> edges_cons[] = {
-	    // FRONT
+	    // FRONT + Z
 	    {0, 1}, // left
 	    {1, 2}, // Bottom
 	    {2, 3}, // right
 	    {3, 0}, // top
-	    // BACK
-	    {5, 4}, // left
+	    // BACK - Z
+	    {4, 5}, // left
 	    {5, 6}, // bottom
 	    {6, 7}, // right
 	    {7, 4}, // top
-	    // LEFT
+	    // LEFT - X
 	    {0, 4}, // top
 	    {1, 5}, // bottom
-	    // RIGHT
+	    // RIGHT + X
 	    {3, 7}, // top
-	    {6, 2} // bottom
+	    {2, 6} // bottom
 	};
 
 	// Create only cubes intersecting the mesh
@@ -60,7 +137,7 @@ void Grid::create_cells(const plane_cloud_index & index)
 	float squared_csize = _csize * _csize;
 
 	Vector3 directions[8] = {
-	    // FRONT
+	    // FRONT + Z
 	    // Left top 0
 	    Vector3(-1, 1, 1) * h_csize,
 	    // Left bottom 1
@@ -69,7 +146,7 @@ void Grid::create_cells(const plane_cloud_index & index)
 	    Vector3(1, -1, 1) * h_csize,
 	    // Right top 3
 	    Vector3(1, 1, 1) * h_csize,
-	    // BACK
+	    // BACK - Z
 	    // Left top 4
 	    Vector3(-1, 1, -1) * h_csize,
 	    // Left bottom 5
@@ -80,13 +157,16 @@ void Grid::create_cells(const plane_cloud_index & index)
 	    Vector3(1, 1, -1) * h_csize
 	};
 	const size_t            num_results = 1;
+	const size_t            size_xy = _size_x * _size_y;
     std::vector<size_t>     ret_index(num_results);
     std::vector<float>      out_squared_dist(num_results);
 	size_t                  nbhd_count;
+	size_t                  cell_index;
 	float                 kd_query[3] =
 	    {cell_center.x, cell_center.y, cell_center.z};
 
 	sCell current_cell;
+	sCell other_cell;
 	sCellEdge current_edge;
 
 	for(float z = 0; z < _size_z; z+=1)
@@ -100,14 +180,134 @@ void Grid::create_cells(const plane_cloud_index & index)
                 cell_center.x = kd_query[0] = _bbox_min.x + x * _csize;
 
 				current_cell = std::make_shared<Cell>();
+				current_cell->edges.resize(12);
 
-				for(int i = 0; i < 12; i++)
+				// Connect edges to other cells
+
+				// Back of this cell is equal to the front of the previous Z cell
+				if(z > 0)
 				{
-					current_edge = std::make_shared<CellEdge>();
-					current_edge->va = std::make_shared<Vector3>(cell_center + directions[edges_cons[i].first]);
-					current_edge->vb = std::make_shared<Vector3>(cell_center + directions[edges_cons[i].second]);
-					current_cell->edges.push_back(current_edge);
+                    cell_index = (z - 1) * (size_xy) + y * _size_x + x;
+					assert(cell_index < _cells.size());
+					other_cell = _cells.at(cell_index);
+					MC_link_edges(current_cell, other_cell, 4, 8, 0);
 				}
+
+				// Bottom of this cell is equal to the top of the previous Y cell
+				if(y > 0)
+				{
+                    cell_index = z * (size_xy) + (y - 1) * _size_x + x;
+					assert(cell_index < _cells.size());
+					other_cell = _cells.at(cell_index);
+					// Front
+					MC_link_edge(current_cell, other_cell, 1, 3);
+					// Back
+					// No need to link if there is a Z link
+					if(z == 0)
+                        MC_link_edge(current_cell, other_cell, 5, 7);
+					// Left
+					MC_link_edge(current_cell, other_cell, 9, 8);
+					// Right
+					MC_link_edge(current_cell, other_cell, 11, 10);
+				}
+
+				// Left of this cell is equal to the right of the previous X cell
+				if(x > 0)
+				{
+                    cell_index = z * (size_xy) + y * _size_x + (x - 1);
+					assert(cell_index < _cells.size());
+					other_cell = _cells.at(cell_index);
+                    MC_link_edge(current_cell, other_cell, 0, 2);
+                    MC_link_edge(current_cell, other_cell, 4, 6);
+                    MC_link_edge(current_cell, other_cell, 8, 10);
+					// If there is Y link, 9 already exists
+					if(y == 0)
+                        MC_link_edge(current_cell, other_cell, 9, 11);
+				}
+
+				// Other non linked new edges
+				if(z == 0 && y == 0 && x == 0)
+				{
+					MC_create_loop_edge(current_cell, 0, 4, cell_center, directions, edges_cons);
+					MC_create_loop_edge(current_cell, 4, 8, cell_center, directions, edges_cons);
+					MC_create_edge_from_a(current_cell, 8, 0, 4);
+					MC_create_edge_from_a(current_cell, 9, 1, 5);
+					MC_create_edge_from_a(current_cell, 10, 3, 7);
+					MC_create_edge_from_a(current_cell, 11, 2, 6);
+				}
+				else if(y == 0 && x == 0)
+				{
+					MC_create_edge(current_cell, 3, cell_center, directions, edges_cons);
+					MC_create_edge(current_cell, 1, cell_center, directions, edges_cons);
+					MC_create_edge_from_a(current_cell, 10, 3, 7);
+					MC_create_edge_from_b(current_cell, 8, 3, 7);
+					MC_create_edge_from_a(current_cell, 9, 1, 5);
+					MC_create_edge_from_b(current_cell, 11, 1, 5);
+					MC_create_edge_from_a(current_cell, 2, 11, 3);
+					MC_create_edge_from_a(current_cell, 0, 8, 1);
+				}
+				else if(y == 0 && z == 0)
+				{
+					MC_create_edge(current_cell, 10, cell_center, directions, edges_cons);
+					MC_create_edge(current_cell, 11, cell_center, directions, edges_cons);
+					MC_create_edge_from_a(current_cell, 2, 11, 10);
+					MC_create_edge_from_b(current_cell, 6, 11, 10);
+					MC_create_edge_from_a(current_cell, 3, 10, 8);
+					MC_create_edge_from_b(current_cell, 7, 10, 8);
+					MC_create_edge_from_a(current_cell, 1, 9, 11);
+					MC_create_edge_from_b(current_cell, 5, 9, 11);
+				}
+				else if(z == 0 && x == 0)
+				{
+					MC_create_edge(current_cell, 8, cell_center, directions, edges_cons);
+					MC_create_edge(current_cell, 10, cell_center, directions, edges_cons);
+					MC_create_edge_from_a(current_cell, 3, 10, 8);
+					MC_create_edge_from_b(current_cell, 7, 10, 8);
+					MC_create_edge_from_a(current_cell, 2, 11, 10);
+					MC_create_edge_from_b(current_cell, 6, 11, 10);
+					MC_create_edge_from_a(current_cell, 0, 8, 9);
+					MC_create_edge_from_b(current_cell, 4, 8, 9);
+				}
+				else if(y == 0)
+				{
+					MC_create_edge(current_cell, 2, cell_center, directions, edges_cons);
+					MC_create_edge_from_a(current_cell, 11, 2, 6);
+					MC_create_edge_from_b(current_cell, 10, 2, 6);
+					MC_create_edge_from_a(current_cell, 1, 9, 11);
+					MC_create_edge_from_b(current_cell, 3, 9, 11);
+
+				}
+				else if(x == 0)
+				{
+					MC_create_edge(current_cell, 3, cell_center, directions, edges_cons);
+					MC_create_edge_from_a(current_cell, 10, 3, 7);
+					MC_create_edge_from_a(current_cell, 2, 11, 10);
+					MC_create_edge_from_b(current_cell, 8, 3, 7);
+					MC_create_edge_from_a(current_cell, 0, 8, 9);
+
+				}
+				else if(z == 0)
+				{
+					MC_create_edge(current_cell, 10, cell_center, directions, edges_cons);
+					MC_create_edge_from_a(current_cell, 2, 11, 10);
+					MC_create_edge_from_b(current_cell, 6, 11, 10);
+					MC_create_edge_from_a(current_cell, 3, 10, 8);
+					MC_create_edge_from_b(current_cell, 7, 10, 8);
+
+				}
+				else
+				{
+					sVector3 newPoint = std::make_shared<Vector3>(cell_center +
+					                                              directions[3]);
+					sCellEdge newEdge = std::make_shared<CellEdge>();
+					newEdge->va = newPoint;
+					newEdge->vb = current_cell->edges[7]->va;
+					current_cell->edges[10] = newEdge;
+					MC_create_edge_from_a(current_cell, 3, 10, 8);
+					MC_create_edge_from_a(current_cell, 2, 11, 10);
+
+				}
+
 				_cells.push_back(current_cell);
 
 # if 0

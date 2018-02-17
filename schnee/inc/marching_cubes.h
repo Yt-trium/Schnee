@@ -34,22 +34,22 @@ public:
 	 * Size : 12
 	 *
 	 * From the same point of view, these are the edges index
-	 * FRONT:
-	 * 0 : left
-	 * 1 : bottom
-	 * 2 : right
-	 * 3 : top
-	 * BACK:
-	 * 4 : left
-	 * 5 : bottom
-	 * 6 : right
-	 * 7 : top
-	 * LEFT:
-	 * 8 : top
-	 * 9 : bottom
-	 * RIGHT :
-	 * 10 : top
-	 * 11 : bottom
+	 * FRONT: + Z
+	 * 0 : left     (top left       -> bottom left)
+	 * 1 : bottom   (bottom left    -> bottom right)
+	 * 2 : right    (bottom right   -> top right)
+	 * 3 : top      (top right      -> top left)
+	 * BACK: - Z
+	 * 4 : left     (top left       -> bottom left)
+	 * 5 : bottom   (bottom left    -> bottom right)
+	 * 6 : right    (bottom right   -> top right)
+	 * 7 : top      (top right      -> top left)
+	 * LEFT: - X
+	 * 8 : top      (top front left     -> top back left)
+	 * 9 : bottom   (bottom front left  -> bottom back left)
+	 * RIGHT : + Y
+	 * 10 : top     (top front right    -> top back right)
+	 * 11 : bottom  (bottom front right -> bottom back right)
 	 */
 	std::vector<sCellEdge> edges;
 
@@ -60,14 +60,13 @@ typedef std::shared_ptr<Cell> sCell;
 class Grid
 {
 public:
-	Grid(const PlaneCloud &, float);
+	Grid(const Vector3&, const Vector3 &, float);
 
-	void create_cells(const plane_cloud_index &);
+	void create_cells();
 
 	const std::vector<sCell> & cells() const { return _cells; }
 
 private:
-	const PlaneCloud & _plc;
 	Vector3 _bbox_min;
 	Vector3 _bbox_max;
 	float _csize;
