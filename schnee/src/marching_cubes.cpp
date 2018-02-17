@@ -29,6 +29,25 @@ Grid::Grid(const PlaneCloud & plc, float cell_size) :
 
 void Grid::create_cells(const plane_cloud_index & index)
 {
+	static std::pair<int, int> edges_cons[] = {
+	    // FRONT
+	    {0, 1}, // left
+	    {1, 2}, // Bottom
+	    {2, 3}, // right
+	    {3, 0}, // top
+	    // BACK
+	    {5, 4}, // left
+	    {5, 6}, // bottom
+	    {6, 7}, // right
+	    {7, 4}, // top
+	    // LEFT
+	    {0, 4}, // top
+	    {1, 5}, // bottom
+	    // RIGHT
+	    {3, 7}, // top
+	    {6, 2} // bottom
+	};
+
 	// Create only cubes intersecting the mesh
 
 	// Debug "cells"
@@ -81,6 +100,15 @@ void Grid::create_cells(const plane_cloud_index & index)
                 cell_center.x = kd_query[0] = _bbox_min.x + x * _csize;
 
 				current_cell = std::make_shared<Cell>();
+
+				for(int i = 0; i < 8; i++)
+				{
+					current_edge = std::make_shared<CellEdge>();
+					current_edge->va = std::make_shared<Vector3>(cell_center + directions[edges_cons[i].first]);
+					current_edge->vb = std::make_shared<Vector3>(cell_center + directions[edges_cons[i].second]);
+					current_cell->edges.push_back(current_edge);
+				}
+				/*
 				// Left front edge
                 current_edge = std::make_shared<CellEdge>();
                 current_edge->va = std::make_shared<Vector3>(cell_center + directions[0]);
@@ -141,6 +169,7 @@ void Grid::create_cells(const plane_cloud_index & index)
                 current_edge->va = std::make_shared<Vector3>(cell_center + directions[6]);
                 current_edge->vb = std::make_shared<Vector3>(cell_center + directions[2]);
 				current_cell->edges.push_back(current_edge);
+				*/
 				_cells.push_back(current_cell);
 
 # if 0
