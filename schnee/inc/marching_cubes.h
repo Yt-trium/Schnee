@@ -66,6 +66,10 @@ public:
 
 	const std::vector<sCell> & cells() const { return _cells; }
 
+	int sizeX() const { return _size_x; }
+	int sizeY() const { return _size_y; }
+	int sizeZ() const { return _size_z; }
+
 private:
 	Vector3 _bbox_min;
 	Vector3 _bbox_max;

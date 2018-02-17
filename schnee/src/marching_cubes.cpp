@@ -3,25 +3,27 @@
 #include "file_saver.h"
 
 Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) :
-    _bbox_min(bbox_min), _bbox_max(bbox_max),
-    _csize(cell_size), _hcsize(cell_size * 0.5f)
+    _csize(cell_size), _hcsize(cell_size * 0.5f),
+    _bbox_min(bbox_min), _bbox_max(bbox_max)
 {
-	std::cout << "BBOX MIN " << _bbox_min << "\n";
-	std::cout << "BBOX MAX " << _bbox_max << "\n";
 	_size_x = std::ceil((_bbox_max.x - _bbox_min.x ) / _csize + 1);
 	_size_y = std::ceil((_bbox_max.y - _bbox_min.y ) / _csize + 1);
 	_size_z = std::ceil((_bbox_max.z - _bbox_min.z ) / _csize + 1);
-	std::cout << "NBCELLS : " << _size_x << " / " << _size_y << " / " << _size_z << "\n";
 
 	// Checks
 	assert(_bbox_min.x + _csize * _size_x >= _bbox_max.x);
 	assert(_bbox_min.y + _csize * _size_y >= _bbox_max.y);
 	assert(_bbox_min.z + _csize * _size_z >= _bbox_max.z);
+	assert(_size_x * _size_y * _size_z ==
+	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x);
+#if 0
+	std::cout << "BBOX MIN " << _bbox_min << "\n";
+	std::cout << "BBOX MAX " << _bbox_max << "\n";
+	std::cout << "NBCELLS : " << _size_x << " / " << _size_y << " / " << _size_z << "\n";
 	std::cout << "TOTAL NB CELLS2: " <<
 	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x << "\n";
 	std::cout << std::endl;
-	assert(_size_x * _size_y * _size_z ==
-	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x);
+#endif
 
 }
 
@@ -214,11 +216,13 @@ void Grid::create_cells()
 				// Left of this cell is equal to the right of the previous X cell
 				if(x > 0)
 				{
-                    cell_index = z * (size_xy) + y * _size_x + (x - 1);
+                    cell_index = z * (size_xy) + y * _size_x + x - 1;
 					assert(cell_index < _cells.size());
 					other_cell = _cells.at(cell_index);
                     MC_link_edge(current_cell, other_cell, 0, 2);
-                    MC_link_edge(current_cell, other_cell, 4, 6);
+					// If there is Z link, 4 already exists
+					if(z == 0)
+                        MC_link_edge(current_cell, other_cell, 4, 6);
                     MC_link_edge(current_cell, other_cell, 8, 10);
 					// If there is Y link, 9 already exists
 					if(y == 0)
