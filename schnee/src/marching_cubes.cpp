@@ -101,75 +101,13 @@ void Grid::create_cells(const plane_cloud_index & index)
 
 				current_cell = std::make_shared<Cell>();
 
-				for(int i = 0; i < 8; i++)
+				for(int i = 0; i < 12; i++)
 				{
 					current_edge = std::make_shared<CellEdge>();
 					current_edge->va = std::make_shared<Vector3>(cell_center + directions[edges_cons[i].first]);
 					current_edge->vb = std::make_shared<Vector3>(cell_center + directions[edges_cons[i].second]);
 					current_cell->edges.push_back(current_edge);
 				}
-				/*
-				// Left front edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[0]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[1]);
-				current_cell->edges.push_back(current_edge);
-				// Bottom front edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[1]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[2]);
-				current_cell->edges.push_back(current_edge);
-				// Right front edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[2]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[3]);
-				current_cell->edges.push_back(current_edge);
-				// Top front edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[3]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[0]);
-				current_cell->edges.push_back(current_edge);
-				// Back left edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[5]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[4]);
-				current_cell->edges.push_back(current_edge);
-				// Back bottom edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[5]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[6]);
-				current_cell->edges.push_back(current_edge);
-				// Back right edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[6]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[7]);
-				current_cell->edges.push_back(current_edge);
-				// Back top edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[7]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[4]);
-				current_cell->edges.push_back(current_edge);
-				// Left top edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[0]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[4]);
-				current_cell->edges.push_back(current_edge);
-				// Left bottom edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[1]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[5]);
-				current_cell->edges.push_back(current_edge);
-				// Right top edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[3]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[7]);
-				current_cell->edges.push_back(current_edge);
-				// Right bottom edge
-                current_edge = std::make_shared<CellEdge>();
-                current_edge->va = std::make_shared<Vector3>(cell_center + directions[6]);
-                current_edge->vb = std::make_shared<Vector3>(cell_center + directions[2]);
-				current_cell->edges.push_back(current_edge);
-				*/
 				_cells.push_back(current_cell);
 
 # if 0
