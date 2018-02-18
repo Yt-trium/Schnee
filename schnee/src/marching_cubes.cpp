@@ -1,6 +1,5 @@
 #include "marching_cubes.h"
-
-#include "file_saver.h"
+#include "plane.h"
 
 Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) :
     _csize(cell_size), _hcsize(cell_size * 0.5f),
@@ -353,7 +352,7 @@ void Grid::create_cells()
 
 }
 
-void Grid::getUniquePoints(std::queue<sCellPoint> & out) const
+void Grid::getUniquePoints(std::deque<sCellPoint> & out) const
 {
 	int index;
 	int size_xy = _size_x * _size_y;
@@ -375,38 +374,71 @@ void Grid::getUniquePoints(std::queue<sCellPoint> & out) const
 
 				index = z * size_xy + y * _size_x + x;
 				curcell = _cells[index];
-				out.push(curcell->edges[4]->va);
+				out.push_back(curcell->edges[4]->va);
 
 				// If on borders
 				if(topx)
 				{
-					out.push(curcell->edges[6]->va);
+					out.push_back(curcell->edges[6]->va);
 				}
 
 				if(topy)
 				{
-					out.push(curcell->edges[4]->vb);
+					out.push_back(curcell->edges[4]->vb);
 					if(topx)
 					{
-                        out.push(curcell->edges[6]->vb);
+                        out.push_back(curcell->edges[6]->vb);
 					}
 				}
 
 				if(topz)
 				{
-					out.push(curcell->edges[0]->va);
+					out.push_back(curcell->edges[0]->va);
 					if(topy)
-                        out.push(curcell->edges[0]->vb);
+                        out.push_back(curcell->edges[0]->vb);
 					if(topx)
 					{
-                        out.push(curcell->edges[2]->va);
+                        out.push_back(curcell->edges[2]->va);
 						if(topy)
-                            out.push(curcell->edges[2]->vb);
+                            out.push_back(curcell->edges[2]->vb);
 					}
 				}
 			}
 		}
 	}
+}
+
+void MC_compute_signed_distance(std::deque<sCellPoint> & points,
+                                const PlaneCloud & plc, const plane_cloud_index & index)
+{
+	// Nbhd variables
+	const size_t            num_results = 1;
+    std::vector<size_t>     ret_index(num_results);
+    std::vector<float>      out_squared_dist(num_results);
+	float                   kd_query[3];
+	size_t                  nbhd_count;
+
+	while(points.size() > 0)
+	{
+		sCellPoint & p = points.front();
+		points.pop_front();
+
+		kd_query[0] = p->x;
+		kd_query[1] = p->y;
+		kd_query[2] = p->z;
+
+		// Compute
+        nbhd_count = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
+        assert(nbhd_count == num_results);
+
+        const Plane & current_plane = *(plc.planes[ret_index[0]].get());
+
+        // Compute distance
+		p->fd = Vector3::dot(*(p.get()) -
+		                     *(current_plane.center.get())
+		                     , *(current_plane.normal.get()));
+	}
+
 }
 
 bool MC_is_point_in_cell(const Vector3 & point, const Vector3 & cell, const float & radius)

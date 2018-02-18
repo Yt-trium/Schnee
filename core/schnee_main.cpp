@@ -10,6 +10,7 @@
 #include <vector>
 #include <cassert>
 #include <cmath>
+#include <deque>
 
 void dump_mem_usage()
 {
@@ -71,6 +72,14 @@ int main(int argc, const char * argv[])
 	grid->create_cells();
 
 	// Calculate signed distance function
+	std::deque<sCellPoint> cell_corners;
+	grid->getUniquePoints(cell_corners);
+	// Get all points before calculating them
+	std::vector<sCellPoint> vcell_corners;
+	vcell_corners.reserve(cell_corners.size());
+
+	MC_compute_signed_distance(cell_corners, plc, index);
+	assert(cell_corners.size() == 0);
 	//std::vector<float> signedFunctions()
 	std::vector<float> distances;
 	//PLC_compute_signed_distances(plc, index, distances, bbox_min, bbox_max, cell_size, nb_cell_x, nb_cell_y, nb_cell_z);

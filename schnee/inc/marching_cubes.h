@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <memory>
-#include <queue>
+#include <deque>
 
 #define DF_UNDEFINED -10.0f
 
@@ -85,7 +85,7 @@ public:
 	 * @brief Return points of the grid so that we can access all points but only one time.
 	 * @return
 	 */
-    void getUniquePoints(std::queue<sCellPoint> &) const;
+    void getUniquePoints(std::deque<sCellPoint> &) const;
 
 	int sizeX() const { return _size_x; }
 	int sizeY() const { return _size_y; }
@@ -101,6 +101,9 @@ private:
 };
 
 typedef std::shared_ptr<Grid> sGrid;
+
+void MC_compute_signed_distance(std::deque<sCellPoint> &,
+                                const PlaneCloud &, const plane_cloud_index &);
 
 bool MC_is_point_in_cell(const Vector3&, const Vector3&, const float&);
 
