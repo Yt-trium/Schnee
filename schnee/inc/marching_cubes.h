@@ -7,20 +7,35 @@
 
 #include <vector>
 #include <memory>
+#include <queue>
+
+#define DF_UNDEFINED -10.0f
+
+class CellPoint : public Vector3
+{
+public:
+
+	/**
+	 * @brief Signed distance value
+	 */
+	float fd;
+
+	CellPoint(const Vector3 & v) : Vector3(v), fd(DF_UNDEFINED)
+	{
+
+	}
+};
+
+typedef std::shared_ptr<CellPoint> sCellPoint;
 
 class CellEdge
 {
 public:
+
 	/**
 	 * @brief Start and end of the edge
 	 */
-	sVector3 va, vb;
-
-	/**
-	 * @brief Signed distance value of start and end of the edge
-	 */
-	float fa, bb;
-
+	sCellPoint va, vb;
 };
 
 typedef std::shared_ptr<CellEdge> sCellEdge;
@@ -65,6 +80,13 @@ public:
 	void create_cells();
 
 	const std::vector<sCell> & cells() const { return _cells; }
+
+	/**
+	 * @brief Return edges of the grid so that we can access all points but only one time.
+	 * To do so, we export only 4 edge per cube and less if it is adjacent to another.
+	 * @return
+	 */
+    void getUniqueEdges(std::queue<sCellEdge> &) const;
 
 	int sizeX() const { return _size_x; }
 	int sizeY() const { return _size_y; }

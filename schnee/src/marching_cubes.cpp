@@ -39,13 +39,13 @@ static void MC_create_loop_edge(
     {
         current_edge = std::make_shared<CellEdge>();
 		if(i == start)
-            current_edge->va = std::make_shared<Vector3>(cell_center + directions[connections[i].first]);
+            current_edge->va = std::make_shared<CellPoint>(cell_center + directions[connections[i].first]);
 		else
 			current_edge->va = cell->edges[i -1]->vb;
 		if(i == end -1)
 			current_edge->vb = cell->edges[start]->va;
 		else
-            current_edge->vb = std::make_shared<Vector3>(cell_center + directions[connections[i].second]);
+            current_edge->vb = std::make_shared<CellPoint>(cell_center + directions[connections[i].second]);
         cell->edges[i] = current_edge;
     }
 }
@@ -59,8 +59,8 @@ static void MC_create_edge(
 {
 	sCellEdge cedge;
 	cedge = std::make_shared<CellEdge>();
-	cedge->va = std::make_shared<Vector3>(cell_center + directions[connections[edge].first]);
-	cedge->vb = std::make_shared<Vector3>(cell_center + directions[connections[edge].second]);
+	cedge->va = std::make_shared<CellPoint>(cell_center + directions[connections[edge].first]);
+	cedge->vb = std::make_shared<CellPoint>(cell_center + directions[connections[edge].second]);
 	cell->edges[edge] = cedge;
 }
 
@@ -321,7 +321,7 @@ void Grid::create_cells()
 				}
 				else
 				{
-					sVector3 newPoint = std::make_shared<Vector3>(cell_center +
+					sCellPoint newPoint = std::make_shared<CellPoint>(cell_center +
 					                                              directions[3]);
 					sCellEdge newEdge = std::make_shared<CellEdge>();
 					newEdge->va = newPoint;
@@ -351,6 +351,90 @@ void Grid::create_cells()
         }
 	}
 
+}
+
+void Grid::getUniqueEdges(std::queue<sCellEdge> & out) const
+{
+	int index;
+	int size_xy = _size_x * _size_y;
+	sCell curcell;
+
+#if 0
+	// By skipping one cube everytime, we get all unique edges
+	// But we need to deal with the last cell if the size is not pair
+
+	assert(_size_x > 1);
+	assert(_size_y > 1);
+	assert(_size_z > 1);
+
+	bool addleft = true;
+	bool addright = true;
+	bool addbottom = true;
+	bool addfront = false;
+
+	for(int z = 0; z < _size_z; z+=2)
+	{
+		addbottom = true;
+        for(int y = 0; y < _size_y; y+=2)
+        {
+			addleft = true;
+            for(int x = 0; x < _size_x; x+=2)
+			{
+				index = z * size_xy + y * _size_x + x;
+				curcell = _cells[index];
+				if(addfront)
+				{
+					if(addbottom)
+					{
+						if(addleft)
+                            out.push(curcell->edges[0]);
+						if(addright)
+                            out.push(curcell->edges[2]);
+					}
+					else
+					{
+                        out.push(curcell->edges[0]);
+                        out.push(curcell->edges[2]);
+					}
+				}
+				else
+				{
+                    if(addleft)
+                    {
+                        out.push(curcell->edges[8]);
+                        if(addbottom) out.push(curcell->edges[9]);
+                    }
+                    if(addright)
+                    {
+                        out.push(curcell->edges[10]);
+                        if(addbottom) out.push(curcell->edges[11]);
+                    }
+				}
+
+				// Last cell when width is pair
+				if(x + 2 >= _size_x && _size_x % 2 == 0)
+				{
+					addleft = false;
+					x = _size_x - 1;
+				}
+			}
+
+			// Last row when height is pair
+			if(y + 2 >= _size_y && _size_y % 2 == 0)
+			{
+				y = _size_y - 1;
+				addbottom = false;
+			}
+		}
+
+		// Last table when depth is pair
+		if(z + 2 >= _size_z && _size_z % 2 == 0)
+		{
+			z = _size_z - 1;
+			addfront = true;
+		}
+	}
+#endif
 }
 
 bool MC_is_point_in_cell(const Vector3 & point, const Vector3 & cell, const float & radius)
