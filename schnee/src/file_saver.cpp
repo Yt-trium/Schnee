@@ -203,7 +203,7 @@ bool FS_OFF_save_cells_position(const std::string & path, const std::vector<sCel
 	for(int i = 0; i < cells.size(); ++i)
 	{
 		const sCell & c = cells[i];
-		for(int j = 0; j < 8; ++j)
+		for(int j = 0; j < 12; ++j)
 		{
 			const sCellEdge & e = c->edges.at(j);
 			va = e->va.get();

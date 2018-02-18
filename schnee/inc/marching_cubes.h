@@ -82,11 +82,10 @@ public:
 	const std::vector<sCell> & cells() const { return _cells; }
 
 	/**
-	 * @brief Return edges of the grid so that we can access all points but only one time.
-	 * To do so, we export only 4 edge per cube and less if it is adjacent to another.
+	 * @brief Return points of the grid so that we can access all points but only one time.
 	 * @return
 	 */
-    void getUniqueEdges(std::queue<sCellEdge> &) const;
+    void getUniquePoints(std::queue<sCellPoint> &) const;
 
 	int sizeX() const { return _size_x; }
 	int sizeY() const { return _size_y; }

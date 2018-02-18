@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 
 #include <vector>
+#include <queue>
 
 #include "catch.hpp"
 
@@ -300,6 +301,79 @@ TEST_CASE("Grid edges")
         }
     }
 
+}
+
+TEST_CASE("Grid unique points all unique")
+{
+	Vector3 min(0, 0, 0);
+	Vector3 max(100, 100, 100);
+	float cell_size = 15;
+	sGrid grid = std::make_shared<Grid>(min, max, cell_size);
+	grid->create_cells();
+
+	// Get result
+	std::queue<sCellPoint> points;
+	grid->getUniquePoints(points);
+
+	// Check if all points are unique
+	size_t size = points.size();
+	std::vector<sCellPoint> uniquePoints;
+	while(points.size() > 0)
+	{
+		sCellPoint p = points.front();
+		points.pop();
+		if(std::find(uniquePoints.begin(), uniquePoints.end(), p) == uniquePoints.end())
+		{
+            uniquePoints.push_back(p);
+		}
+	}
+
+	REQUIRE(size == uniquePoints.size());
+}
+
+TEST_CASE("Grid unique points")
+{
+
+	Vector3 min(0, 0, 0);
+	Vector3 max(100, 100, 100);
+	float cell_size = 15;
+	sGrid grid = std::make_shared<Grid>(min, max, cell_size);
+	grid->create_cells();
+
+	const std::vector<sCell> & cells = grid->cells();
+	// Count number of unique points
+	size_t nbpoint = 0;
+	std::vector<CellPoint *> uniquePoints;
+
+	CellPoint * va, * vb;
+	for(int i = 0; i < cells.size(); ++i)
+	{
+		const sCell & c = cells[i];
+		for(int j = 0; j < 12; ++j)
+		{
+			const sCellEdge & e = c->edges.at(j);
+			va = e->va.get();
+			vb = e->vb.get();
+
+			if(std::find(uniquePoints.begin(), uniquePoints.end(), va) == uniquePoints.end())
+			{
+				uniquePoints.push_back(va);
+				nbpoint++;
+			}
+
+			if(std::find(uniquePoints.begin(), uniquePoints.end(), vb) == uniquePoints.end())
+			{
+				uniquePoints.push_back(vb);
+				nbpoint++;
+			}
+		}
+	}
+
+	// Get result
+	std::queue<sCellPoint> points;
+	grid->getUniquePoints(points);
+
+	REQUIRE(points.size() == nbpoint);
 }
 
 TEST_CASE( "Kruskal" ) {

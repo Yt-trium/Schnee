@@ -353,88 +353,60 @@ void Grid::create_cells()
 
 }
 
-void Grid::getUniqueEdges(std::queue<sCellEdge> & out) const
+void Grid::getUniquePoints(std::queue<sCellPoint> & out) const
 {
 	int index;
 	int size_xy = _size_x * _size_y;
 	sCell curcell;
 
-#if 0
-	// By skipping one cube everytime, we get all unique edges
-	// But we need to deal with the last cell if the size is not pair
+	assert(_cells.size() == _size_x * _size_y * _size_z);
 
-	assert(_size_x > 1);
-	assert(_size_y > 1);
-	assert(_size_z > 1);
+	bool topx, topy, topz;
 
-	bool addleft = true;
-	bool addright = true;
-	bool addbottom = true;
-	bool addfront = false;
-
-	for(int z = 0; z < _size_z; z+=2)
+	for(int z = 0; z < _size_z; z+=1)
 	{
-		addbottom = true;
-        for(int y = 0; y < _size_y; y+=2)
+		topz = z + 1 == _size_z;
+        for(int y = 0; y < _size_y; y+=1)
         {
-			addleft = true;
-            for(int x = 0; x < _size_x; x+=2)
+            topy = y + 1 == _size_y;
+            for(int x = 0; x < _size_x; x+=1)
 			{
+                topx = x + 1 == _size_x;
+
 				index = z * size_xy + y * _size_x + x;
 				curcell = _cells[index];
-				if(addfront)
+				out.push(curcell->edges[4]->va);
+
+				// If on borders
+				if(topx)
 				{
-					if(addbottom)
-					{
-						if(addleft)
-                            out.push(curcell->edges[0]);
-						if(addright)
-                            out.push(curcell->edges[2]);
-					}
-					else
-					{
-                        out.push(curcell->edges[0]);
-                        out.push(curcell->edges[2]);
-					}
-				}
-				else
-				{
-                    if(addleft)
-                    {
-                        out.push(curcell->edges[8]);
-                        if(addbottom) out.push(curcell->edges[9]);
-                    }
-                    if(addright)
-                    {
-                        out.push(curcell->edges[10]);
-                        if(addbottom) out.push(curcell->edges[11]);
-                    }
+					out.push(curcell->edges[6]->va);
 				}
 
-				// Last cell when width is pair
-				if(x + 2 >= _size_x && _size_x % 2 == 0)
+				if(topy)
 				{
-					addleft = false;
-					x = _size_x - 1;
+					out.push(curcell->edges[4]->vb);
+					if(topx)
+					{
+                        out.push(curcell->edges[6]->vb);
+					}
+				}
+
+				if(topz)
+				{
+					out.push(curcell->edges[0]->va);
+					if(topy)
+                        out.push(curcell->edges[0]->vb);
+					if(topx)
+					{
+                        out.push(curcell->edges[2]->va);
+						if(topy)
+                            out.push(curcell->edges[2]->vb);
+					}
 				}
 			}
-
-			// Last row when height is pair
-			if(y + 2 >= _size_y && _size_y % 2 == 0)
-			{
-				y = _size_y - 1;
-				addbottom = false;
-			}
-		}
-
-		// Last table when depth is pair
-		if(z + 2 >= _size_z && _size_z % 2 == 0)
-		{
-			z = _size_z - 1;
-			addfront = true;
 		}
 	}
-#endif
 }
 
 bool MC_is_point_in_cell(const Vector3 & point, const Vector3 & cell, const float & radius)
