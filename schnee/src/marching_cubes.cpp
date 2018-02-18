@@ -259,7 +259,7 @@ void Grid::create_cells()
 					MC_create_edge(current_cell, 1, cell_center, directions, edges_cons);
 
 					MC_create_edge_from_a(current_cell, 0, 1, 3);
-					MC_create_edge_from_a(current_cell, 2, 1, 3);
+					MC_create_edge_from_b(current_cell, 2, 1, 3);
 
 					MC_create_edge_from_a(current_cell, 8, 3, 7);
 					MC_create_edge_from_a(current_cell, 9, 1, 5);
@@ -306,7 +306,7 @@ void Grid::create_cells()
 					MC_create_edge(current_cell, 3, cell_center, directions, edges_cons);
 
 					MC_create_edge_from_a(current_cell, 8, 3, 7);
-					MC_create_edge_from_a(current_cell, 0, 8, 9);
+					MC_create_edge_from_a(current_cell, 0, 9, 8);
 					MC_create_edge_from_b(current_cell, 2, 1, 3);
 					MC_create_edge_from_b(current_cell, 10, 2, 6);
 				}
@@ -328,7 +328,7 @@ void Grid::create_cells()
 					newEdge->vb = current_cell->edges[7]->vb;
 					current_cell->edges[10] = newEdge;
 					MC_create_edge_from_a(current_cell, 3, 8, 10);
-					MC_create_edge_from_a(current_cell, 2, 11, 10);
+					MC_create_edge_from_b(current_cell, 2, 1, 3);
 
 				}
 
