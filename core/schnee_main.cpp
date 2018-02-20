@@ -62,6 +62,13 @@ int main(int argc, const char * argv[])
 	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(10));
 	index.buildIndex();
 
+    /* For each point in the cloud
+     * Find the neighbor (oi and oj are close)
+     * Create the graph with weight = 1 - ni * nj
+     * Creating MST
+     * Fix planes orientation
+     */
+
 	// marching cubes
 	std::vector<sGrid> grids;
 	Vector3 bbox_min, bbox_max;
