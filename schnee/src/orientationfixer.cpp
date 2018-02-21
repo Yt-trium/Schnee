@@ -22,7 +22,7 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
     float               kd_query[3];
     size_t              nbhd_count;
 
-    int e = 0;
+    int e = 0, id;
     float w;
 
     for(int i = 0; i < plc.planes.size(); ++i)
@@ -51,4 +51,46 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
 
     kruskal.setEdges(e);
     r = kruskal.MST();
+
+    // search for the max z plane
+    id = maxZ(plc);
+
+    if(plc.planes.at(id)->normal->z < 0)
+    {
+        // *(plc.planes[id]->normal) *= -1;
+        flip (plc.planes[id]->normal);
+    }
+
+    // parcourir tout le graph
+    depthSearchFix(r,plc,id,id);
+}
+
+int maxZ(const PlaneCloud &plc)
+{
+    int r = 0;
+    float max = plc.planes.at(0)->center->z;
+
+    for(int i = 1; i < plc.planes.size(); ++i)
+    {
+        if(max < plc.planes.at(i)->center->z)
+        {
+            max = plc.planes.at(i)->center->z;
+            r = i;
+        }
+    }
+
+    return r;
+}
+
+void flip(sVector3 &v)
+{
+    *(v) *= -1;
+}
+
+void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, int current, int from)
+{
+    // fix le point courant avec le point qui nous appelle
+
+    // recupere les points voisins et appel la fonction recursivement sauf sur le parent.
+
 }
