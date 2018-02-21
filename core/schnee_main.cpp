@@ -38,7 +38,7 @@ int main(int argc, const char * argv[])
 	std::string pin = argv[1];
 	std::string pout = argv[2];
 	int k = std::stoi(argv[3]);
-	float denity = std::stof(argv[4]);
+	float density = std::stof(argv[4]);
 	float noise = std::stof(argv[5]);
 	assert(k > 1);
 	assert(density > 0.0f);
