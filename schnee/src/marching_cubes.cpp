@@ -15,15 +15,6 @@ Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) 
 	assert(_bbox_min.z + _csize * _size_z >= _bbox_max.z);
 	assert(_size_x * _size_y * _size_z ==
 	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x);
-#if 0
-	std::cout << "BBOX MIN " << _bbox_min << "\n";
-	std::cout << "BBOX MAX " << _bbox_max << "\n";
-	std::cout << "NBCELLS : " << _size_x << " / " << _size_y << " / " << _size_z << "\n";
-	std::cout << "TOTAL NB CELLS2: " <<
-	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x << "\n";
-	std::cout << std::endl;
-#endif
-
 }
 
 static void MC_create_loop_edge(
@@ -409,7 +400,8 @@ void Grid::getUniquePoints(std::vector<sCellPoint> & out) const
 }
 
 void MC_compute_signed_distance(std::vector<sCellPoint> & points,
-                                const PlaneCloud & plc, const plane_cloud_index & index)
+                                const PlaneCloud & plc, const plane_cloud_index & index,
+                                float density, float noise)
 {
 	// Nbhd variables
 	const size_t            num_results = 1;
@@ -417,6 +409,8 @@ void MC_compute_signed_distance(std::vector<sCellPoint> & points,
     std::vector<float>      out_squared_dist(num_results);
 	float                   kd_query[3];
 	size_t                  nbhd_count;
+
+	float ignore_threshold = pow((density + noise) * 2, 2);
 
 	for(int i = 0; i < points.size(); ++i)
 	{
@@ -430,11 +424,17 @@ void MC_compute_signed_distance(std::vector<sCellPoint> & points,
         nbhd_count = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
         assert(nbhd_count == num_results);
 
+        if(out_squared_dist[0] > ignore_threshold)
+		{
+        	p->fd = 0.0 / 0.0;
+        	continue;
+		}
+
+
         const Plane & current_plane = *(plc.planes[ret_index[0]].get());
 
         // Compute distance
-		p->fd = Vector3::dot(*(p.get()) -
-		                     *(current_plane.center.get())
+		p->fd = Vector3::dot(*(p.get()) - *(current_plane.center.get())
 		                     , *(current_plane.normal.get()));
 	}
 

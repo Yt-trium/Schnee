@@ -103,7 +103,7 @@ private:
 typedef std::shared_ptr<Grid> sGrid;
 
 void MC_compute_signed_distance(std::vector<sCellPoint> &,
-                                const PlaneCloud &, const plane_cloud_index &);
+                                const PlaneCloud &, const plane_cloud_index &, float, float);
 
 bool MC_is_point_in_cell(const Vector3&, const Vector3&, const float&);
 
