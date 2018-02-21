@@ -76,6 +76,7 @@ class Grid
 {
 public:
 	Grid(const Vector3&, const Vector3 &, float);
+	Grid(const Grid &);
 
 	void create_cells();
 

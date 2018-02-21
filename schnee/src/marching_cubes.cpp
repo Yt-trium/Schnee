@@ -17,6 +17,13 @@ Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) 
 	             (_size_z - 1) * (_size_x * _size_y) + (_size_y - 1) * _size_x + _size_x);
 }
 
+Grid::Grid(const Grid & other) : 
+	_csize(other._csize), _hcsize(other._hcsize),
+	_bbox_min(other._bbox_min), _bbox_max(other._bbox_max),
+	_size_x(other._size_x), _size_y(other._size_y), _size_z(other._size_z)
+{
+}
+
 static void MC_create_loop_edge(
         sCell & cell, size_t start, size_t end,
         const Vector3 & cell_center,
