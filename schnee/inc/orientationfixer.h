@@ -1,8 +1,9 @@
 #ifndef ORIENTATIONFIXER_H
 #define ORIENTATIONFIXER_H
 
-#include "vector.h"
+#include <cmath>
 
+#include "vector.h"
 #include "cloud.h"
 #include "plane.h"
 #include "kruskal.h"

@@ -21,13 +21,22 @@ void Kruskal::setVertices(int V)
     this->graph.V = V;
 }
 
-void Kruskal::addEdge(int src, int dst, float weight)
+bool Kruskal::addEdge(int src, int dst, float weight)
 {
+    for(int i = 0;i < this->graph.edges.size();i++)
+    {
+        if(this->graph.edges[i].dst == src && this->graph.edges[i].src == dst)
+            return false;
+        if(this->graph.edges[i].dst == dst && this->graph.edges[i].src == src)
+            return false;
+    }
+
     KEdge edge;
     edge.src = src;
     edge.dst = dst;
     edge.weight = weight;
     this->graph.edges.push_back(edge);
+    return true;
 }
 
 std::vector<Kruskal::KEdge> Kruskal::MST()

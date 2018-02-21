@@ -41,12 +41,12 @@ int main(int argc, const char * argv[])
 	float denity = std::stof(argv[4]);
 	float noise = std::stof(argv[5]);
 	assert(k > 1);
-	assert(density > 0.0f);
+    assert(density > 0.0f);
 	assert(noise >= 0.0f);
 	std::cout << "IN FILE: " << pin << "\n";
 	std::cout << "OUT FILE: " << pout << "\n";
 	std::cout << "K: " << k << std::endl;
-	std::cout << "DENSITY: " << density << std::endl;
+    std::cout << "DENSITY: " << density << std::endl;
 	std::cout << "NOISE: " << noise << std::endl;
 
 	// Create empty point cloud

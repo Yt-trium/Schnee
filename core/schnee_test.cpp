@@ -406,6 +406,9 @@ TEST_CASE( "Kruskal" ) {
         REQUIRE( r.at(2).dst == 1 );
         REQUIRE( r.at(2).weight == 10 );
     }
+
+    REQUIRE(k.addEdge(1,3,1) == false);
+    REQUIRE(k.addEdge(3,1,1) == false);
 }
 
 /*

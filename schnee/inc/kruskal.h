@@ -59,7 +59,7 @@ public:
      * @param dst
      * @param weight
      */
-    void addEdge(int src, int dst, float weight);
+    bool addEdge(int src, int dst, float weight);
     /**
      * @brief Compute the Minimum Spanning Tree
      */

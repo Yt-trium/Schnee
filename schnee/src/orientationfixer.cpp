@@ -13,7 +13,7 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
     std::vector<Kruskal::KEdge> r;
 
     kruskal.setVertices(plc.planes.size());
-    kruskal.setEdges(plc.planes.size()*k);
+
 
     // Nbhd variables
     const size_t        num_results = k + 1;
@@ -22,6 +22,7 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
     float               kd_query[3];
     size_t              nbhd_count;
 
+    int e = 0;
     float w;
 
     for(int i = 0; i < plc.planes.size(); ++i)
@@ -41,18 +42,13 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
         {
             sVector3 n2 = plc.planes.at(ret_index[j])->normal;
 
-            w = 1 - Vector3::dot((*n1),(*n2));
+            w = 1 - abs(Vector3::dot((*n1),(*n2)));
 
-            kruskal.addEdge(i,ret_index[j],w);
+            if(kruskal.addEdge(i,ret_index[j],w))
+                e++;
         }
     }
-    /*
-    kruskal.addEdge(0,1,10);
-    kruskal.addEdge(0,2,6);
-    kruskal.addEdge(0,3,5);
-    kruskal.addEdge(1,3,15);
-    kruskal.addEdge(2,3,4);
 
+    kruskal.setEdges(e);
     r = kruskal.MST();
-    */
 }
