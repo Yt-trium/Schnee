@@ -31,7 +31,7 @@ TEST_CASE("Grid edges")
 	SECTION("Test point values")
 	{
 		sCell cell = cells[0];
-		REQUIRE(*(cell->edges[4]->va.get()) == Vector3(0, 0, 0));
+		REQUIRE(*(cell->edges[4]->va.get()) == Vector3(-cell_size, -cell_size, -cell_size));
 
 	}
 
@@ -275,7 +275,7 @@ TEST_CASE("Grid edges")
 	{
 		for(int i = 0; i < cells.size(); i++)
 		{
-			std::cout << "Testing cell number " << i << "\n";
+			//std::cout << "Testing cell number " << i << "\n";
             REQUIRE(cells[i]->edges[0]->va == cells[i]->edges[1]->va);
             REQUIRE(cells[i]->edges[0]->vb == cells[i]->edges[8]->va);
             REQUIRE(cells[i]->edges[1]->va == cells[i]->edges[0]->va);
