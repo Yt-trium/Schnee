@@ -352,7 +352,7 @@ void Grid::create_cells()
 
 }
 
-void Grid::getUniquePoints(std::deque<sCellPoint> & out) const
+void Grid::getUniquePoints(std::vector<sCellPoint> & out) const
 {
 	int index;
 	int size_xy = _size_x * _size_y;
@@ -408,7 +408,7 @@ void Grid::getUniquePoints(std::deque<sCellPoint> & out) const
 	}
 }
 
-void MC_compute_signed_distance(std::deque<sCellPoint> & points,
+void MC_compute_signed_distance(std::vector<sCellPoint> & points,
                                 const PlaneCloud & plc, const plane_cloud_index & index)
 {
 	// Nbhd variables
@@ -418,10 +418,9 @@ void MC_compute_signed_distance(std::deque<sCellPoint> & points,
 	float                   kd_query[3];
 	size_t                  nbhd_count;
 
-	while(points.size() > 0)
+	for(int i = 0; i < points.size(); ++i)
 	{
-		sCellPoint & p = points.front();
-		points.pop_front();
+		sCellPoint & p = points[i];
 
 		kd_query[0] = p->x;
 		kd_query[1] = p->y;

@@ -24,4 +24,6 @@ bool FS_OFF_save_vector_values(const std::string &, const std::vector<sVector3> 
 
 bool FS_OFF_save_cells_position(const std::string &, const std::vector<sCell>&);
 
+bool FS_OFF_save_cell_points(const std::string &, const std::vector<sCellPoint>&);
+
 #endif

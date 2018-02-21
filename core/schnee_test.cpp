@@ -312,16 +312,15 @@ TEST_CASE("Grid unique points all unique")
 	grid->create_cells();
 
 	// Get result
-	std::deque<sCellPoint> points;
+	std::vector<sCellPoint> points;
 	grid->getUniquePoints(points);
 
 	// Check if all points are unique
 	size_t size = points.size();
 	std::vector<sCellPoint> uniquePoints;
-	while(points.size() > 0)
+	for(int i = 0; i < points.size(); ++i)
 	{
-		sCellPoint p = points.front();
-		points.pop_front();
+		sCellPoint p = points[i];
 		if(std::find(uniquePoints.begin(), uniquePoints.end(), p) == uniquePoints.end())
 		{
             uniquePoints.push_back(p);
@@ -370,7 +369,7 @@ TEST_CASE("Grid unique points")
 	}
 
 	// Get result
-	std::deque<sCellPoint> points;
+	std::vector<sCellPoint> points;
 	grid->getUniquePoints(points);
 
 	REQUIRE(points.size() == nbpoint);
