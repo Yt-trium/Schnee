@@ -3,6 +3,7 @@
 #include "file_loader.h"
 #include "file_saver.h"
 #include "cloud.h"
+#include "orientationfixer.h"
 #include "marching_cubes.h"
 
 #include <iostream>
@@ -62,12 +63,7 @@ int main(int argc, const char * argv[])
 	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(10));
 	index.buildIndex();
 
-    /* For each point in the cloud
-     * Find the neighbor (oi and oj are close)
-     * Create the graph with weight = 1 - ni * nj
-     * Creating MST
-     * Fix planes orientation
-     */
+    orientationFixer(plc,index,k);
 
 	// marching cubes
 	std::vector<sGrid> grids;
