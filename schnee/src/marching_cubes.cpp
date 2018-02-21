@@ -3,11 +3,11 @@
 
 Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) :
     _csize(cell_size), _hcsize(cell_size * 0.5f),
-    _bbox_min(bbox_min), _bbox_max(bbox_max)
+    _bbox_min(bbox_min - cell_size), _bbox_max(bbox_max)
 {
-	_size_x = std::ceil((_bbox_max.x - _bbox_min.x ) / _csize + 1);
-	_size_y = std::ceil((_bbox_max.y - _bbox_min.y ) / _csize + 1);
-	_size_z = std::ceil((_bbox_max.z - _bbox_min.z ) / _csize + 1);
+	_size_x = std::ceil((_bbox_max.x - _bbox_min.x ) / _csize );
+	_size_y = std::ceil((_bbox_max.y - _bbox_min.y ) / _csize );
+	_size_z = std::ceil((_bbox_max.z - _bbox_min.z ) / _csize );
 
 	// Checks
 	assert(_bbox_min.x + _csize * _size_x >= _bbox_max.x);

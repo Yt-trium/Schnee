@@ -250,8 +250,9 @@ bool FS_OFF_save_cell_points(const std::string & path, const std::vector<sCellPo
 	for(int i = 0; i < corners.size(); i++)
 	{
 		d = corners[i]->fd;
-		if(d > max) max = d;
-		else if(d < min) min = d;
+		if(d != d) continue;
+		if(d > max || max != max) max = d;
+		else if(d < min || min != min) min = d;
 	}
 
 	assert(min != max);
