@@ -80,17 +80,8 @@ int main(int argc, const char * argv[])
 
 	MC_compute_signed_distance(cell_corners, plc, index);
 	//std::vector<float> signedFunctions()
-	std::vector<float> distances;
-	//PLC_compute_signed_distances(plc, index, distances, bbox_min, bbox_max, cell_size, nb_cell_x, nb_cell_y, nb_cell_z);
 
 	// Debug
-	std::vector<sVector3> origins;
-	for(int i = 0; i < planes.size(); i++)
-	{
-		origins.push_back(planes[i]->center);
-	}
-
-	FS_OFF_save_points("/tmp/out.plane.centers.off", origins);
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 5, 0.06f);
 	FS_OFF_save_cell_points("/tmp/out.cells.values.off", cell_corners);
@@ -99,36 +90,4 @@ int main(int argc, const char * argv[])
 
 	return 0;
 }
-	// Search closest to a point
-	/*
-    const size_t num_results = k;
-	size_t ret_index[k];
-	float out_squared_dist[k];
-	nanoflann::KNNResultSet<float> result_set(num_results);
-	result_set.init(ret_index, out_squared_dist);
-	result_set.
-	index.findNeighbors(result_set, &kd_query[0], nanoflann::SearchParams());
-	std::cout << "knnSearch(nn=" << num_results << "):\n";
-	for(size_t i = 0; i < result_set.size(); i++)
-	{
-		std::cout << "idx[" << i << "]=" << ret_index[i] << " dist=" << out_squared_dist[i] << std::endl;
 
-	}
-	*/
-	/*
-	// Search closests to a point
-	size_t num_results = k;
-    std::vector<size_t>   ret_index(num_results);
-    std::vector<float> out_dist_sqr(num_results);
-
-    num_results = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_dist_sqr[0]);
-
-    // In case of less points in the tree than requested:
-    ret_index.resize(num_results);
-    out_dist_sqr.resize(num_results);
-
-    std::cout << "knnSearch(): num_results=" << num_results << "\n";
-    for (size_t i = 0; i < num_results; i++)
-        std::cout << "idx["<< i << "]=" << ret_index[i] << " dist["<< i << "]=" << out_dist_sqr[i] << std::endl;
-	std::cout << "\n";
-	*/
