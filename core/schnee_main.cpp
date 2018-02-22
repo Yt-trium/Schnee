@@ -84,7 +84,7 @@ int main(int argc, const char * argv[])
     // Calcul density if undefined
     if(density == -1.0f)
     {
-        density = pow(size.x * size.y * size.z, 2) / (float) planes.size();
+        density = (8 * size.x * size.y * size.z) / (float) planes.size();
     }
     std::cout << "DENSITY: " << density << std::endl;
     std::cout << "POINT COUNT: " << planes.size() << std::endl;

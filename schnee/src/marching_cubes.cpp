@@ -105,7 +105,7 @@ static void MC_link_edge(
 
 void Grid::create_cells()
 {
-    assert(_size_x * _size_z * _size_y < 1000); // For performance issues
+    assert(_size_x * _size_z * _size_y < 20000); // For performance issues
 	// Edge vertices connections
 	static std::pair<int, int> edges_cons[] = {
 	    // FRONT + Z
@@ -417,6 +417,7 @@ void MC_compute_signed_distance(std::vector<sCellPoint> & points,
     std::vector<float>      out_squared_dist(num_results);
 	float                   kd_query[3];
 	size_t                  nbhd_count;
+    Vector3                 z; // Projection of p on plane
 
 	float ignore_threshold = pow((density + noise) * 2, 2);
 
@@ -432,18 +433,23 @@ void MC_compute_signed_distance(std::vector<sCellPoint> & points,
         nbhd_count = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
         assert(nbhd_count == num_results);
 
-        if(out_squared_dist[0] > ignore_threshold)
-		{
-        	p->fd = 0.0 / 0.0;
-        	continue;
-		}
-
-
         const Plane & current_plane = *(plc.planes[ret_index[0]].get());
 
-        // Compute distance
-		p->fd = Vector3::dot(*(p.get()) - *(current_plane.center.get())
-		                     , *(current_plane.normal.get()));
+        // z = o - ((p - o) . n) * n
+        z = *(current_plane.center) -
+                Vector3::dot((*(p.get()) - *(current_plane.center)), *(current_plane.normal)) *
+                *(current_plane.normal);
+
+        if(z.distanceTo(*(current_plane.center)) > density + noise)
+        {
+        	p->fd = 0.0 / 0.0;
+		}
+        else
+        {
+            // f(p) = (p - o) . n
+            p->fd = Vector3::dot(*(p.get()) - *(current_plane.center.get())
+                                 , *(current_plane.normal.get()));
+        }
 	}
 
 }
