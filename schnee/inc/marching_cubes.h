@@ -28,45 +28,24 @@ public:
 
 typedef std::shared_ptr<CellPoint> sCellPoint;
 
-class CellEdge
-{
-public:
-
-	/**
-	 * @brief Start and end of the edge
-	 */
-	sCellPoint va, vb;
-};
-
-typedef std::shared_ptr<CellEdge> sCellEdge;
-
 class Cell
 {
 public:
 
 	/**
-	 * @brief edges
-	 * Size : 12
-	 *
-	 * From the same point of view, these are the edges index
-	 * FRONT: + Z
-	 * 0 : left     (bottom left       -> top left)
-	 * 1 : bottom   (bottom left    -> bottom right)
-	 * 2 : right    (bottom right   -> top right)
-	 * 3 : top      (top left      -> top right)
-	 * BACK: - Z
-	 * 4 : left     (bottom left       -> top left)
-	 * 5 : bottom   (bottom left    -> bottom right)
-	 * 6 : right    (bottom right   -> top right)
-	 * 7 : top      (top left      -> top right)
-	 * LEFT: - X
-	 * 8 : top      (top front left     -> top back left)
-	 * 9 : bottom   (bottom front left  -> bottom back left)
-	 * RIGHT : + Y
-	 * 10 : top     (top front right    -> top back right)
-	 * 11 : bottom  (bottom front right -> bottom back right)
+     * Cube description:
+     *         7 ________ 6           _____6__             ________
+     *         /|       /|         7/|       /|          /|       /|
+     *       /  |     /  |        /  |     /5 |        /  6     /  |
+     *   4 /_______ /    |      /__4____ /    10     /_______3/    |
+     *    |     |  |5    |     |    11  |     |     |     |  |   2 |
+     *    |    3|__|_____|2    |     |__|__2__|     | 4   |__|_____|
+     *    |    /   |    /      8   3/   9    /      |    /   |    /
+     *    |  /     |  /        |  /     |  /1       |  /     5  /
+     *    |/_______|/          |/___0___|/          |/_1_____|/
+     *   0          1        0          1
 	 */
-	std::vector<sCellEdge> edges;
+    std::vector<sCellPoint> corners;
 
 };
 

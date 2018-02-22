@@ -195,38 +195,28 @@ bool FS_OFF_save_cells_position(const std::string & path, const std::vector<sCel
 
 	writer << "OFF\n";
 
-	size_t count_point = 0;
 	std::stringstream verts;
     verts << std::fixed;
 	std::vector<Vector3 *> writenPoints;
 
-	Vector3 * va, * vb;
+    Vector3 * va;
 	for(int i = 0; i < cells.size(); ++i)
 	{
 		const sCell & c = cells[i];
-		for(int j = 0; j < 12; ++j)
+        for(int j = 0; j < c->corners.size(); ++j)
 		{
-			const sCellEdge & e = c->edges.at(j);
-			va = e->va.get();
-			vb = e->vb.get();
+            const sCellPoint & cp = c->corners.at(j);
+            va = cp.get();
 
 			if(std::find(writenPoints.begin(), writenPoints.end(), va) == writenPoints.end())
 			{
 				writenPoints.push_back(va);
-				count_point++;
 				verts << va->x << " " << va->y << " " << va->z << "\n";
-			}
-
-			if(std::find(writenPoints.begin(), writenPoints.end(), vb) == writenPoints.end())
-			{
-				writenPoints.push_back(vb);
-				count_point++;
-				verts << vb->x << " " << vb->y << " " << vb->z << "\n";
 			}
 		}
 	}
 
-	writer << count_point << " 0 0\n";
+    writer << writenPoints.size() << " 0 0\n";
 	writer << std::fixed;
 	writer << verts.rdbuf();
 

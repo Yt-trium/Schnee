@@ -31,221 +31,225 @@ TEST_CASE("Grid edges")
 	SECTION("Test point values")
 	{
 		sCell cell = cells[0];
-		REQUIRE(*(cell->edges[4]->va.get()) == Vector3(-cell_size, -cell_size, -cell_size));
+        REQUIRE(*(cell->corners[0].get()) == Vector3(-cell_size, -cell_size, -cell_size));
 
 	}
 
-	SECTION("Test common edges in (0, 0, 0)")
+    SECTION("Test common points in (0, 0, 0)")
 	{
 		sCell cell = cells[0];
-		REQUIRE(cell->edges[0] != cell->edges[8]);
-		REQUIRE(cell->edges[1] != cell->edges[0]);
-		REQUIRE(cell->edges[3] != cell->edges[10]);
-		REQUIRE(cell->edges[4] != cell->edges[7]);
-		REQUIRE(cell->edges[5] != cell->edges[4]);
-		REQUIRE(cell->edges[6] != cell->edges[11]);
-		REQUIRE(cell->edges[7] != cell->edges[10]);
-		REQUIRE(cell->edges[8] != cell->edges[3]);
-		REQUIRE(cell->edges[9] != cell->edges[0]);
-		REQUIRE(cell->edges[10] != cell->edges[7]);
-		REQUIRE(cell->edges[11] != cell->edges[6]);
-	}
+        REQUIRE(cell->corners[0] != cell->corners[1]);
+        REQUIRE(cell->corners[1] != cell->corners[2]);
+        REQUIRE(cell->corners[2] != cell->corners[3]);
+        REQUIRE(cell->corners[3] != cell->corners[4]);
+        REQUIRE(cell->corners[4] != cell->corners[5]);
+        REQUIRE(cell->corners[5] != cell->corners[6]);
+        REQUIRE(cell->corners[6] != cell->corners[7]);
+    }
 
-	SECTION("Test common edges with (0, 0, 0) and (1, 0, 0)")
+    SECTION("Test common corners with (0, 0, 0) and (1, 0, 0)")
 	{
 		sCell cell = cells[0];
 		sCell other = cells[1];
 
-		REQUIRE(cell->edges[6] == other->edges[4]);
-		REQUIRE(cell->edges[2] == other->edges[0]);
-		REQUIRE(cell->edges[10] == other->edges[8]);
-		REQUIRE(cell->edges[11] == other->edges[9]);
+        REQUIRE(cell->corners[1] == other->corners[0]);
+        REQUIRE(cell->corners[5] == other->corners[4]);
+        REQUIRE(cell->corners[6] == other->corners[7]);
+        REQUIRE(cell->corners[2] == other->corners[3]);
 	}
 
-	SECTION("Test common edges with (0, 0, 0) and (0, 1, 0)")
+    SECTION("Test common corners with (0, 0, 0) and (0, 1, 0)")
 	{
 		sCell cell = cells[0];
 		sCell other = cells[2];
 
-		REQUIRE(cell->edges[7] == other->edges[5]);
-		REQUIRE(cell->edges[3] == other->edges[1]);
-		REQUIRE(cell->edges[8] == other->edges[9]);
-		REQUIRE(cell->edges[10] == other->edges[11]);
+        REQUIRE(cell->corners[4] == other->corners[0]);
+        REQUIRE(cell->corners[5] == other->corners[1]);
+        REQUIRE(cell->corners[6] == other->corners[2]);
+        REQUIRE(cell->corners[7] == other->corners[3]);
 	}
 
-	SECTION("Test common edges with (0, 0, 0) and (0, 0, 1)")
+    SECTION("Test common corners with (0, 0, 0) and (0, 0, 1)")
 	{
 		sCell cell = cells[0];
 		sCell other = cells[4];
 
-		REQUIRE(cell->edges[1] == other->edges[5]);
-		REQUIRE(cell->edges[2] == other->edges[6]);
-		REQUIRE(cell->edges[0] == other->edges[4]);
-		REQUIRE(cell->edges[3] == other->edges[7]);
+        REQUIRE(cell->corners[2] == other->corners[1]);
+        REQUIRE(cell->corners[3] == other->corners[0]);
+        REQUIRE(cell->corners[6] == other->corners[5]);
+        REQUIRE(cell->corners[7] == other->corners[4]);
 	}
 
-	SECTION("Test common edges with (0, 0, 0) and (1, 1, 0)")
+    SECTION("Test common corners with (0, 0, 0) and (1, 1, 0)")
 	{
 		sCell cell = cells[0];
 		sCell other = cells[3];
 
-		REQUIRE(cell->edges[10] == other->edges[9]);
-	}
+        REQUIRE(cell->corners[5] == other->corners[0]);
+        REQUIRE(cell->corners[6] == other->corners[3]);
+    }
 
-	SECTION("Test common edges with (0, 0, 0) and (0, 1, 1)")
+    SECTION("Test common corners with (0, 0, 0) and (0, 1, 1)")
 	{
 		sCell cell = cells[0];
 		sCell other = cells[6];
 
-		REQUIRE(cell->edges[3] == other->edges[5]);
-	}
+        REQUIRE(cell->corners[6] == other->corners[1]);
+        REQUIRE(cell->corners[7] == other->corners[0]);
+    }
 
-	SECTION("Test common edges with (0, 0, 0) and (1, 0, 1)")
+    SECTION("Test common corners with (0, 0, 0) and (1, 0, 1)")
 	{
 		sCell cell = cells[0];
 		sCell other = cells[5];
 
-		REQUIRE(cell->edges[2] == other->edges[4]);
-	}
+        REQUIRE(cell->corners[2] == other->corners[0]);
+        REQUIRE(cell->corners[6] == other->corners[4]);
+    }
 
-	SECTION("Test common edges with (1, 0, 0) and (1, 1, 0)")
+    SECTION("Test common corners with (1, 0, 0) and (1, 1, 0)")
 	{
 		sCell cell = cells[1];
 		sCell other = cells[3];
 
-		REQUIRE(cell->edges[3] == other->edges[1]);
-		REQUIRE(cell->edges[10] == other->edges[11]);
-		REQUIRE(cell->edges[7] == other->edges[5]);
-		REQUIRE(cell->edges[8] == other->edges[9]);
+        REQUIRE(cell->corners[4] == other->corners[0]);
+        REQUIRE(cell->corners[5] == other->corners[1]);
+        REQUIRE(cell->corners[6] == other->corners[2]);
+        REQUIRE(cell->corners[7] == other->corners[3]);
 	}
 
-	SECTION("Test common edges with (1, 0, 0) and (0, 1, 0)")
+    SECTION("Test common corners with (1, 0, 0) and (0, 1, 0)")
 	{
 		sCell cell = cells[1];
 		sCell other = cells[2];
 
-		REQUIRE(cell->edges[8] == other->edges[11]);
-	}
+        REQUIRE(cell->corners[4] == other->corners[1]);
+        REQUIRE(cell->corners[7] == other->corners[2]);
+    }
 
-	SECTION("Test common edges with (1, 0, 0) and (1, 1, 1)")
+    SECTION("Test common corners with (1, 0, 0) and (1, 1, 1)")
 	{
 		sCell cell = cells[1];
 		sCell other = cells[7];
 
-		REQUIRE(cell->edges[3] == other->edges[5]);
-	}
+        REQUIRE(cell->corners[6] == other->corners[1]);
+        REQUIRE(cell->corners[7] == other->corners[0]);
+    }
 
-	SECTION("Test common edges with (1, 0, 0) and (1, 0, 1)")
+    SECTION("Test common corners with (1, 0, 0) and (1, 0, 1)")
 	{
 		sCell cell = cells[1];
 		sCell other = cells[5];
 
-		REQUIRE(cell->edges[3] == other->edges[7]);
-		REQUIRE(cell->edges[2] == other->edges[6]);
-		REQUIRE(cell->edges[0] == other->edges[4]);
-		REQUIRE(cell->edges[1] == other->edges[5]);
+        REQUIRE(cell->corners[2] == other->corners[1]);
+        REQUIRE(cell->corners[3] == other->corners[0]);
+        REQUIRE(cell->corners[6] == other->corners[5]);
+        REQUIRE(cell->corners[7] == other->corners[4]);
 	}
 
-	SECTION("Test common edges with (1, 0, 0) and (0, 0, 1)")
+    SECTION("Test common corners with (1, 0, 0) and (0, 0, 1)")
 	{
 		sCell cell = cells[1];
 		sCell other = cells[4];
 
-		REQUIRE(cell->edges[0] == other->edges[6]);
-	}
+        REQUIRE(cell->corners[3] == other->corners[1]);
+        REQUIRE(cell->corners[7] == other->corners[5]);
+    }
 
-	SECTION("Test common edges with (0, 1, 0) and (1, 1, 0)")
+    SECTION("Test common corners with (0, 1, 0) and (1, 1, 0)")
 	{
 		sCell cell = cells[2];
 		sCell other = cells[3];
 
-		REQUIRE(cell->edges[6] == other->edges[4]);
-		REQUIRE(cell->edges[2] == other->edges[0]);
-		REQUIRE(cell->edges[10] == other->edges[8]);
-		REQUIRE(cell->edges[11] == other->edges[9]);
+        REQUIRE(cell->corners[1] == other->corners[0]);
+        REQUIRE(cell->corners[2] == other->corners[3]);
+        REQUIRE(cell->corners[5] == other->corners[4]);
+        REQUIRE(cell->corners[6] == other->corners[7]);
 	}
 
-	SECTION("Test common edges with (0, 1, 0) and (0, 1, 1)")
+    // Needs to be finished here
+
+    SECTION("Test common corners with (0, 1, 0) and (0, 1, 1)")
 	{
 		sCell cell = cells[2];
 		sCell other = cells[6];
 
-		REQUIRE(cell->edges[3] == other->edges[7]);
-		REQUIRE(cell->edges[2] == other->edges[6]);
-		REQUIRE(cell->edges[0] == other->edges[4]);
-		REQUIRE(cell->edges[1] == other->edges[5]);
+        REQUIRE(cell->corners[3] == other->corners[7]);
+        REQUIRE(cell->corners[2] == other->corners[6]);
+        REQUIRE(cell->corners[0] == other->corners[4]);
+        REQUIRE(cell->corners[1] == other->corners[5]);
 	}
 
-	SECTION("Test common edges with (0, 1, 0) and (0, 0, 1)")
+    SECTION("Test common corners with (0, 1, 0) and (0, 0, 1)")
 	{
 		sCell cell = cells[2];
 		sCell other = cells[4];
 
-		REQUIRE(cell->edges[1] == other->edges[7]);
+        REQUIRE(cell->corners[1] == other->corners[7]);
 	}
-	SECTION("Test common edges with (0, 1, 0) and (1, 1, 1)")
+    SECTION("Test common corners with (0, 1, 0) and (1, 1, 1)")
 	{
 		sCell cell = cells[2];
 		sCell other = cells[7];
 
-		REQUIRE(cell->edges[2] == other->edges[4]);
+        REQUIRE(cell->corners[2] == other->corners[4]);
 	}
 
-	SECTION("Test common edges with (1, 1, 0) and (0, 1, 1)")
+    SECTION("Test common corners with (1, 1, 0) and (0, 1, 1)")
 	{
 		sCell cell = cells[3];
 		sCell other = cells[6];
 
-		REQUIRE(cell->edges[0] == other->edges[6]);
+        REQUIRE(cell->corners[0] == other->corners[6]);
 	}
 
-	SECTION("Test common edges with (1, 1, 0) and (1, 1, 1)")
+    SECTION("Test common corners with (1, 1, 0) and (1, 1, 1)")
 	{
 		sCell cell = cells[3];
 		sCell other = cells[7];
 
-		REQUIRE(cell->edges[3] == other->edges[7]);
-		REQUIRE(cell->edges[2] == other->edges[6]);
-		REQUIRE(cell->edges[0] == other->edges[4]);
-		REQUIRE(cell->edges[1] == other->edges[5]);
+        REQUIRE(cell->corners[3] == other->corners[7]);
+        REQUIRE(cell->corners[2] == other->corners[6]);
+        REQUIRE(cell->corners[0] == other->corners[4]);
+        REQUIRE(cell->corners[1] == other->corners[5]);
 	}
 
-	SECTION("Test common edges with (1, 1, 0) and (1, 0, 1)")
+    SECTION("Test common corners with (1, 1, 0) and (1, 0, 1)")
 	{
 		sCell cell = cells[3];
 		sCell other = cells[5];
 
-		REQUIRE(cell->edges[1] == other->edges[7]);
+        REQUIRE(cell->corners[1] == other->corners[7]);
 	}
 
-	SECTION("Test common edges with (0, 1, 1) and (1, 0, 1)")
+    SECTION("Test common corners with (0, 1, 1) and (1, 0, 1)")
 	{
 		sCell cell = cells[6];
 		sCell other = cells[5];
 
-		REQUIRE(cell->edges[11] == other->edges[8]);
+        REQUIRE(cell->corners[11] == other->corners[8]);
 	}
 
-	SECTION("Test common edges with (0, 1, 1) and (1, 1, 1)")
+    SECTION("Test common corners with (0, 1, 1) and (1, 1, 1)")
 	{
 		sCell cell = cells[6];
 		sCell other = cells[7];
 
-		REQUIRE(cell->edges[6] == other->edges[4]);
-		REQUIRE(cell->edges[2] == other->edges[0]);
-		REQUIRE(cell->edges[10] == other->edges[8]);
-		REQUIRE(cell->edges[11] == other->edges[9]);
+        REQUIRE(cell->corners[6] == other->corners[4]);
+        REQUIRE(cell->corners[2] == other->corners[0]);
+        REQUIRE(cell->corners[10] == other->corners[8]);
+        REQUIRE(cell->corners[11] == other->corners[9]);
 	}
 
-	SECTION("Test common edges with (0, 1, 1) and (0, 0, 1)")
+    SECTION("Test common corners with (0, 1, 1) and (0, 0, 1)")
 	{
 		sCell cell = cells[6];
 		sCell other = cells[4];
 
-		REQUIRE(cell->edges[9] == other->edges[8]);
-		REQUIRE(cell->edges[1] == other->edges[3]);
-		REQUIRE(cell->edges[5] == other->edges[7]);
-		REQUIRE(cell->edges[11] == other->edges[10]);
+        REQUIRE(cell->corners[9] == other->corners[8]);
+        REQUIRE(cell->corners[1] == other->corners[3]);
+        REQUIRE(cell->corners[5] == other->corners[7]);
+        REQUIRE(cell->corners[11] == other->corners[10]);
 	}
 
 	SECTION("Test all uncommon cells")
@@ -265,41 +269,12 @@ TEST_CASE("Grid edges")
             {
                 for(int j = 0; j < 12; j++)
                 {
-                    REQUIRE(cell->edges[i] != other->edges[j]);
+                    REQUIRE(cell->corners[i] != other->corners[j]);
                 }
             }
 		}
 	}
 
-	SECTION("Test common points in all cells")
-	{
-		for(int i = 0; i < cells.size(); i++)
-		{
-			//std::cout << "Testing cell number " << i << "\n";
-            REQUIRE(cells[i]->edges[0]->va == cells[i]->edges[1]->va);
-            REQUIRE(cells[i]->edges[0]->vb == cells[i]->edges[8]->va);
-            REQUIRE(cells[i]->edges[1]->va == cells[i]->edges[0]->va);
-            REQUIRE(cells[i]->edges[1]->vb == cells[i]->edges[2]->va);
-            REQUIRE(cells[i]->edges[3]->va == cells[i]->edges[8]->va);
-            REQUIRE(cells[i]->edges[3]->vb == cells[i]->edges[10]->va);
-            REQUIRE(cells[i]->edges[4]->va == cells[i]->edges[9]->vb);
-            REQUIRE(cells[i]->edges[4]->vb == cells[i]->edges[7]->va);
-            REQUIRE(cells[i]->edges[5]->va == cells[i]->edges[4]->va);
-            REQUIRE(cells[i]->edges[5]->vb == cells[i]->edges[6]->va);
-            REQUIRE(cells[i]->edges[6]->va == cells[i]->edges[11]->vb);
-            REQUIRE(cells[i]->edges[6]->vb == cells[i]->edges[10]->vb);
-            REQUIRE(cells[i]->edges[7]->va == cells[i]->edges[8]->vb);
-            REQUIRE(cells[i]->edges[7]->vb == cells[i]->edges[6]->vb);
-            REQUIRE(cells[i]->edges[8]->va == cells[i]->edges[3]->va);
-            REQUIRE(cells[i]->edges[8]->vb == cells[i]->edges[7]->va);
-            REQUIRE(cells[i]->edges[9]->va == cells[i]->edges[0]->va);
-            REQUIRE(cells[i]->edges[9]->vb == cells[i]->edges[5]->va);
-            REQUIRE(cells[i]->edges[10]->va == cells[i]->edges[2]->vb);
-            REQUIRE(cells[i]->edges[10]->vb == cells[i]->edges[7]->vb);
-            REQUIRE(cells[i]->edges[11]->va == cells[i]->edges[1]->vb);
-            REQUIRE(cells[i]->edges[11]->vb == cells[i]->edges[6]->va);
-        }
-    }
 
 }
 
@@ -344,35 +319,26 @@ TEST_CASE("Grid unique points")
 	size_t nbpoint = 0;
 	std::vector<CellPoint *> uniquePoints;
 
-	CellPoint * va, * vb;
+    CellPoint * va;
 	for(int i = 0; i < cells.size(); ++i)
 	{
 		const sCell & c = cells[i];
-		for(int j = 0; j < 12; ++j)
+        for(int j = 0; j < c->corners.size(); ++j)
 		{
-			const sCellEdge & e = c->edges.at(j);
-			va = e->va.get();
-			vb = e->vb.get();
+            va = c->corners.at(j).get();
 
 			if(std::find(uniquePoints.begin(), uniquePoints.end(), va) == uniquePoints.end())
 			{
 				uniquePoints.push_back(va);
-				nbpoint++;
 			}
-
-			if(std::find(uniquePoints.begin(), uniquePoints.end(), vb) == uniquePoints.end())
-			{
-				uniquePoints.push_back(vb);
-				nbpoint++;
-			}
-		}
+        }
 	}
 
 	// Get result
 	std::vector<sCellPoint> points;
 	grid->getUniquePoints(points);
 
-	REQUIRE(points.size() == nbpoint);
+    REQUIRE(points.size() == uniquePoints.size());
 }
 
 TEST_CASE( "Kruskal" ) {
