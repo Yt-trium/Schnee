@@ -1,11 +1,12 @@
 #include "file_saver.h"
 #include "marching_cubes.h"
 
-#include <fstream>
-#include <sstream>
-#include <cassert>
-#include <vector>
 #include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <iterator>
+#include <sstream>
+#include <vector>
 
 bool FS_OFF_save_points(const std::string & path, const std::vector<sVector3> & points)
 {
@@ -283,4 +284,59 @@ bool FS_OFF_save_cell_points(const std::string & path, const std::vector<sCellPo
 
 	return true;
 
+}
+
+bool FS_OFF_save_mesh(const std::string & path, const mesh::Mesh & mesh)
+{
+    std::ofstream writer(path);
+    assert(writer.is_open());
+
+
+    writer << "OFF\n";
+
+    std::stringstream verts, faces;
+    verts << std::fixed;
+    faces << std::fixed;
+
+    std::vector<Vector3 *> writenPoints;
+    size_t vert_index;
+    Vector3 * va = 0;
+
+    // For each face
+    for(size_t f = 0; f < mesh.faces.size(); ++f)
+    {
+        const mesh::sFace & face = mesh.faces[f];
+
+        faces << face->points.size();
+        // For each point
+        for(size_t e = 0; e < face->points.size(); ++e)
+        {
+            va = face->points[e].get();
+
+            vert_index = std::distance(writenPoints.begin(),
+                                       std::find(writenPoints.begin(), writenPoints.end(), va));
+
+            if(vert_index >= writenPoints.size()) // new point
+            {
+                writenPoints.push_back(va);
+                verts << va->x << " " << va->y << " " << va->z << "\n";
+                faces << " " << writenPoints.size() - 1;
+            }
+            else // existing
+            {
+                faces << " " << vert_index;
+            }
+
+        }
+        faces << "\n";
+    }
+
+
+    writer << writenPoints.size() << " " << mesh.faces.size() << " 0\n";
+    writer << std::fixed;
+    writer << verts.rdbuf();
+    writer << faces.rdbuf();
+    writer.close();
+
+    return true;
 }
