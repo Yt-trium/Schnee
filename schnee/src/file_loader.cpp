@@ -26,7 +26,7 @@ bool FL_OFF_load_points(const std::string & path, std::vector<sVector3> & output
 
 	int vert_count;
 	reader >> vert_count >> reader_int >> reader_int; // Line ends with 0
-	std::cout << "Vert count: " << vert_count << std::endl;
+    //std::cout << "Vert count: " << vert_count << std::endl;
 
 	// Read verts
 	float x, y, z;

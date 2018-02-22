@@ -105,6 +105,7 @@ static void MC_link_edge(
 
 void Grid::create_cells()
 {
+    assert(_size_x * _size_z * _size_y < 1000); // For performance issues
 	// Edge vertices connections
 	static std::pair<int, int> edges_cons[] = {
 	    // FRONT + Z

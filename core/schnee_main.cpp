@@ -6,12 +6,13 @@
 #include "orientationfixer.h"
 #include "marching_cubes.h"
 
-#include <iostream>
-#include <string>
-#include <vector>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 #include <deque>
+#include <iostream>
+#include <string>
+#include <vector>
 
 void dump_mem_usage()
 {
@@ -27,27 +28,29 @@ void dump_mem_usage()
 
 int main(int argc, const char * argv[])
 {
-	if(argc < 6)
+    if(argc < 3)
 	{
 		std::cout << "USAGE:\n";
-		std::cout << argv[0] << " off_input_file off_out_file k density noise" << std::endl;
+        std::cout << argv[0] << " off_input_file off_out_file [k] density noise" << "\n";
+        std::cout << "by default: k=4, density=mesh size/point count, noise=0" << std::endl;
 		exit(2);
 	}
 
 	// In off file
 	std::string pin = argv[1];
 	std::string pout = argv[2];
-	int k = std::stoi(argv[3]);
-	float density = std::stof(argv[4]);
-	float noise = std::stof(argv[5]);
+    int k = 4;
+    float density = -1.0f, noise = 0.0f;
+
+    if(argc > 3) k = std::stoi(argv[3]);
+    if(argc > 4) density = std::stof(argv[4]);
+    if(argc > 5) noise = std::stof(argv[5]);
 	assert(k > 1);
-    assert(density > 0.0f);
 	assert(noise >= 0.0f);
 	std::cout << "IN FILE: " << pin << "\n";
 	std::cout << "OUT FILE: " << pout << "\n";
-	std::cout << "K: " << k << std::endl;
-    std::cout << "DENSITY: " << density << std::endl;
-	std::cout << "NOISE: " << noise << std::endl;
+    std::cout << "K: " << k << std::endl;
+    std::cout << "NOISE: " << noise << std::endl;
 
 	// Create empty point cloud
 	PointCloud pc;
@@ -55,6 +58,9 @@ int main(int argc, const char * argv[])
 	// Get points
 	if(!FL_OFF_load_points(pin, pc.points))
 		exit(3);
+
+    assert(pc.points.size() > 0);
+
 
 	// Buil planes
 	std::vector<sPlane> planes;
@@ -74,8 +80,20 @@ int main(int argc, const char * argv[])
 	PLC_get_bounds(plc,
 	               bbox_min.x, bbox_min.y, bbox_min.z,
 	               bbox_max.x, bbox_max.y, bbox_max.z);
-	sGrid grid = std::make_shared<Grid>(bbox_min, bbox_max, density);
-	grid->create_cells();
+    Vector3 size = bbox_max - bbox_min;
+    // Calcul density if undefined
+    if(density == -1.0f)
+    {
+        density = pow(size.x * size.y * size.z, 2) / (float) planes.size();
+    }
+    std::cout << "DENSITY: " << density << std::endl;
+    std::cout << "POINT COUNT: " << planes.size() << std::endl;
+    assert(density > 0.0f);
+    sGrid grid = std::make_shared<Grid>(bbox_min, bbox_max, density);
+    std::cout << "GRID SIZE: " << grid->sizeX() << "x" << grid->sizeY() << "x" <<
+                 grid->sizeZ() << " -> " << grid->sizeX() * grid->sizeY() * grid->sizeZ() << std::endl;
+    std::cout << "GRID REAL SIZE: " << size << std::endl;
+    grid->create_cells();
 
 	// Calculate signed distance function
 	std::vector<sCellPoint> cell_corners;
