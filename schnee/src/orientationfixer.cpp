@@ -36,12 +36,12 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
         nbhd_count = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
 
         assert(nbhd_count == num_results);
-        assert(ret_index[0] == i);
 
         sVector3 n1 = plc.planes.at(i)->normal;
 
-        for(int j = 1; j <= k; ++j)
+        for(int j = 0; j <= k; ++j)
         {
+			if(ret_index[j] == i) continue;
             sVector3 n2 = plc.planes.at(ret_index[j])->normal;
 
             w = 1 - abs(Vector3::dot((*n1),(*n2)));

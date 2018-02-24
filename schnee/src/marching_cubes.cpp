@@ -186,7 +186,7 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
         cell_case = casesClassic[cur_cell->situation];
 
 		// Read triangles
-		for(int t = 0; t < 15; t += 3)
+		for(int t = 0; t < 16; t += 3)
 		{
 			if(cell_case[t] == -1) break;
 			newface = std::make_shared<mesh::Face>();
@@ -197,7 +197,7 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 				// edge indice
 				et = cell_case[t + e];
 
-				get_face_vertex(i, et, cur_cell, edges_right, edges_top, edges_depth, newpoint);
+				newpoint = get_face_vertex(i, et, cur_cell, edges_right, edges_top, edges_depth);
 				assert(newpoint);
 
 				// Push vertex
@@ -210,9 +210,8 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 	}
 }
 
-void Grid::get_face_vertex(const int & cell_index, const int & edge_index, const sCell & cur_cell,
-                           point_map & edges_right, point_map & edges_top, point_map & edges_depth,
-                           sVector3 & out)
+sVector3 Grid::get_face_vertex(const int & cell_index, const int & edge_index, const sCell & cur_cell,
+                           point_map & edges_right, point_map & edges_top, point_map & edges_depth)
 {
     // See if the point has already been created
 	// index formula z * _size_xy + y * _size_x + x
@@ -260,15 +259,16 @@ void Grid::get_face_vertex(const int & cell_index, const int & edge_index, const
         edge_cornders_indices(edge_index, c1, c2);
 
         // Create point
-		out = std::make_shared<Vector3>(
+        sVector3 out = std::make_shared<Vector3>(
                   (*(cur_cell->corners[c1]) + *(cur_cell->corners[c2])) * 0.5f
                   );
         // Update maps
         (*map)[index] = out;
+		return out;
 	}
 	else
 	{
-		out = (*map)[index];
+		return (*map)[index];
 	}
 }
 

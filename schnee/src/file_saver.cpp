@@ -226,7 +226,7 @@ bool FS_OFF_save_cells_position(const std::string & path, const std::vector<sCel
 
 }
 
-bool FS_OFF_save_cell_points(const std::string & path, const std::vector<sCellPoint>& corners)
+bool FS_OFF_save_cell_points(const std::string & path, const std::vector<sCellPoint>& corners, float isolevel)
 {
 	std::ofstream writer(path);
 
@@ -235,38 +235,24 @@ bool FS_OFF_save_cell_points(const std::string & path, const std::vector<sCellPo
 	writer << "COFF\n";
 	writer << corners.size() << " 0 0\n";
 
-	// Get min and max distances for grading
-	float min = corners[0]->fd, max = corners[0]->fd;
-	float d;
-	for(int i = 0; i < corners.size(); i++)
-	{
-		d = corners[i]->fd;
-		if(d != d) continue;
-		if(d > max || max != max) max = d;
-		else if(d < min || min != min) min = d;
-	}
-
-	assert(min != max);
-	assert(min == min);
-	assert(max == max);
-
 	writer << std::fixed;
 
-	float color;
 	for(int i = 0; i < corners.size(); i++)
 	{
-		d = corners[i]->fd;
+		float d = corners[i]->fd;
 		const Vector3 & p = *(corners[i].get());
         writer << p.x << " " << p.y << " " << p.z << " ";
-		if(d == d)
+		if(d != d)
 		{
-            color = (d - min) / (max - min);
-            writer << color << " " << color << " " << color << " " << 1.0f << "\n";
+            writer << 0.0f << " " << 0.0f << " " << 0.0f << " " << 1.0f << "\n";
+		}
+		else if(d < isolevel)
+		{
+            writer << 1.0f << " " << 0.0f << " " << 0.0f << " " << 1.0f << "\n";
 		}
 		else
 		{
-            writer << 1.0f << " " << 0.0f << " " << 0.0f << " " << 1.0f << "\n";
-
+            writer << 0.0f << " " << 1.0f << " " << 0.0f << " " << 1.0f << "\n";
 		}
 	}
 

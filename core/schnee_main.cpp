@@ -18,7 +18,6 @@
 
 int main(int argc, const char * argv[])
 {
-
     if(argc < 3)
 	{
 		std::cout << "USAGE:\n";
@@ -51,23 +50,31 @@ int main(int argc, const char * argv[])
 	PointCloud pc;
 
 	// Get points
+	int start_loading_file = clock();
 	if(!FL_OFF_load_points(pin, pc.points))
 		exit(3);
+	int end_loading_file = clock();
 
     assert(pc.points.size() > 0);
 
 
 	// Buil planes
 	std::vector<sPlane> planes;
+	int start_building_planes = clock();
 	PTC_build_planes(pc, planes, k);
+	int end_building_planes = clock();
 
 	// Fix planes orientation
 	PlaneCloud plc;
 	plc.planes = planes;
-	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(30));
+	int start_kd_planes = clock();
+	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(20));
 	index.buildIndex();
+	int end_kd_planes = clock();
 
+	int start_mst = clock();
     orientationFixer(plc,index,k);
+	int end_mst = clock();
 
 	// marching cubes
 	std::vector<sGrid> grids;
@@ -88,32 +95,39 @@ int main(int argc, const char * argv[])
     std::cout << "GRID SIZE: " << grid->sizeX() << "x" << grid->sizeY() << "x" <<
                  grid->sizeZ() << " -> " << grid->sizeX() * grid->sizeY() * grid->sizeZ() << std::endl;
     std::cout << "GRID REAL SIZE: " << size << std::endl;
+	int start_grid_cells = clock();
     grid->create_cells();
+	int end_grid_cells = clock();
 
-	/*
 	// Calculate signed distance function
 	std::vector<sCellPoint> cell_corners = grid->uniquePoints();
 	MC_compute_signed_distance(cell_corners, plc, index, density, noise);
-	FS_OFF_save_cell_points("/tmp/out.cells.values.off", cell_corners);
-	*/
+	FS_OFF_save_cell_points("/tmp/out.cells.values.off", cell_corners, isolevel);
 
 	// Compute marching cubes
 	mesh::Mesh generated_mesh;
+	int start_compute_mesh = clock();
 	grid->compute_mesh(plc, index, density, noise, isolevel, generated_mesh);
+	int end_compute_mesh = clock();
 
 	// Debug
-	//FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
-	//FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
+	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
+	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
-	//FS_OFF_save_cells_position("/tmp/out.grid.corners.off", grid->cells());
 
 	// Export
 	FS_OFF_save_mesh(pout, generated_mesh);
 
 	int stop_s=clock();
-	std::cout << "TOTAL EXECUTION TIME: " << (stop_s-start_s)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
-	std::cout << "TOTAL EXECUTION TIME: " << (stop_s-start_s)/double(CLOCKS_PER_SEC) * 1000 << " ms" << std::endl;
-
+	std::cout << "\n";
+	std::cout << "READ FILE EXECUTION TIME: " << '\t' << (end_loading_file-start_loading_file)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "BUILD PLANES EXECUTION TIME: " << '\t'<< (end_building_planes-start_building_planes)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "BUILD KD TREE PLANES EXECUTION TIME: " << '\t' << (end_kd_planes-start_kd_planes)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "FIXING NORMALS ORIENTATION EXECUTION TIME: " << '\t' << (end_mst-start_mst)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "CREATING CELLS EXECUTION TIME: " << '\t' << (end_grid_cells-start_grid_cells)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "COMPUTE MESH EXECUTION TIME: " << '\t' << (end_grid_cells-start_grid_cells)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "\n";
+	std::cout << "TOTAL EXECUTION TIME: " << '\t' << (stop_s-start_s)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
 	return 0;
 }
 

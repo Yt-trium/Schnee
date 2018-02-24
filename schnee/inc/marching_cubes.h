@@ -67,9 +67,8 @@ public:
 
 	void compute_mesh(const PlaneCloud &, const plane_cloud_index &, float, float, float, mesh::Mesh &);
 
-	void get_face_vertex(const int &, const int &, const sCell &,
-	                     point_map &, point_map &, point_map &,
-	                     sVector3 &);
+	sVector3 get_face_vertex(const int &, const int &, const sCell &,
+	                     point_map &, point_map &, point_map &);
 
 	const sCell & cell(const float & x, const float & y, const float & z) const
 	{

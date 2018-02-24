@@ -37,16 +37,16 @@ void PTC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_
 		nbhd_count = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
 
 		assert(nbhd_count == num_results);
-		assert(ret_index[0] == i);
 
 		sPlane plane = std::make_shared<Plane>();
 
 		// Calculate o, centroid
-		for(int j = 1; j < num_results; ++j)
+		for(int j = 0; j < num_results; ++j)
 		{
 			current_index = ret_index[j];
+			if(current_index == i) continue;
 			current_neighbour = pc.points[current_index];
-			if(j == 1)
+			if(!plane->center)
 				plane->center = std::make_shared<Vector3>(*(current_neighbour.get()));
 			else
 				*(plane->center.get()) += *(current_neighbour.get());
