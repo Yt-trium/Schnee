@@ -54,11 +54,14 @@ void PTC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_
 		*(plane->center.get()) /= k;
 
 		// Calculate n, normal
+		// See https://github.com/PointCloudLibrary/pcl/blob/46cb8fe5589e88e36d79f9b8b8e5f4ff4fceb5de/common/include/pcl/common/impl/centroid.hpp#L180
+		// And http://www.pointclouds.org/documentation/tutorials/normal_estimation.php
 		covariance_matrix.setZero();
 		for(int j = 1; j < num_results; ++j)
 		{
 			current_index = ret_index[j];
 			current_neighbour = pc.points[current_index];
+
 			xdist = current_neighbour->x - plane->center->x;
 			ydist = current_neighbour->y - plane->center->y;
 			zdist = current_neighbour->z - plane->center->z;
@@ -101,54 +104,25 @@ void PC_compute_surface_from_covaraince(
 		const float & lamb1 = solver.eigenvalues()(0).real();
 		const float & lamb2 = solver.eigenvalues()(1).real();
 		const float & lamb3 = solver.eigenvalues()(2).real();
-		int ncol = 0, ucol = 1, vcol = 2;
+		int ncol = 0, ucol = 1;
         //std::cout << "lamb1: " << lamb1 << "\n";
         //std::cout << "lamb2: " << lamb2 << "\n";
         //std::cout << "lamb3: " << lamb3 << "\n";
 		if(lamb1 <= lamb2 && lamb2 <= lamb3)
-		{
 			ncol = 0;
-			ucol = 1;
-			vcol = 2;
-		}
-		else if(lamb1 <= lamb3 && lamb3 <= lamb2)
-		{
-			ncol = 0;
-			ucol = 2;
-			vcol = 1;
-		}
-		else if(lamb2 <= lamb3 && lamb3 <= lamb1)
-		{
-			ncol = 1;
-			ucol = 2;
-			vcol = 0;
-		}
-		else if(lamb2 <= lamb1 && lamb1 <= lamb3)
-		{
-			ncol = 1;
-			ucol = 0;
-			vcol = 2;
-		}
-		else if(lamb3 <= lamb1 && lamb1 <= lamb2)
-		{
+		else if(lamb3 <= lamb1)
 			ncol = 2;
-			ucol = 0;
-			vcol = 1;
-		}
-		else if(lamb3 <= lamb2 && lamb2 <= lamb1)
-		{
-			ncol = 2;
-			ucol = 1;
-			vcol = 0;
-		}
+		else
+			ncol = 1;
+
+		ucol = (ncol + 1) % 3;
 
 		auto u = solver.pseudoEigenvectors().col(ucol);
-		auto v = solver.pseudoEigenvectors().col(vcol);
 		auto n = solver.pseudoEigenvectors().col(ncol);
 		output.normal = std::make_shared<Vector3>(n(0), n(1), n(2));
         //std::cout << "Normal: " << *(output.normal.get()) << "\n";
 		output.u = std::make_shared<Vector3>(u(0), u(1), u(2));
-		output.v = std::make_shared<Vector3>(Vector3::cross(*(output.normal.get()), *(output.u.get())));
+		output.v = std::make_shared<Vector3>(Vector3::cross(*(output.u), *(output.normal)));
 }
 
 void PLC_get_bounds(const PlaneCloud & plc,
