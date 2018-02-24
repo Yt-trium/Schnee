@@ -31,11 +31,19 @@ void flip(sVector3 &v);
 
 /**
  * @brief depthSearchFix
- * @param r the MST
- * @param plc the plane cloud
- * @param current the current plane to check
- * @param from the plane who call us
+ * @param r : the MST
+ * @param plc : the plane cloud
+ * @param current : the current plane
+ * @param from : the plane who call us
  */
 void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, int current, int from);
+
+/**
+ * @brief getNBH
+ * @param r
+ * @param current
+ * @return
+ */
+std::vector<int> getNBH(const std::vector<Kruskal::KEdge> &r, int current);
 
 #endif // ORIENTATIONFIXER_H

@@ -9,6 +9,8 @@
 
 void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int &k)
 {
+    // std::cout << "orientationFixer " << plc.planes.size() << std::endl;
+
     Kruskal kruskal;
     std::vector<Kruskal::KEdge> r;
 
@@ -89,8 +91,40 @@ void flip(sVector3 &v)
 
 void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, int current, int from)
 {
-    // fix le point courant avec le point qui nous appelle
+    // std::cout << from << " " << current << std::endl;
+    // std::vector<int> nbh;
 
-    // recupere les points voisins et appel la fonction recursivement sauf sur le parent.
+    nbh = getNBH(r,current);
 
+    // fix les voisins (pas from)
+    for(int i = 0; i < nbh.size();i++)
+    {
+        int id = nbh.at(i);
+        if(Vector3::dot(*(plc.planes.at(current)->normal),*(plc.planes.at(id)->normal)) < 0)
+            flip(plc.planes.at(id)->normal);
+    }
+
+    // appel les voisins.
+    for(int i = 0; i < nbh.size();i++)
+    {
+        if(nbh.at(i) != from)
+            depthSearchFix(r,plc,nbh.at(i),current);
+    }
+
+}
+
+std::vector<int> getNBH(const std::vector<Kruskal::KEdge> &r, int current)
+{
+    std::vector<int> nbh;
+
+    for(int i = 0; i < r.size();i++)
+    {
+        if(r.at(i).dst == current)
+            nbh.push_back(r.at(i).src);
+
+        if(r.at(i).src == current)
+            nbh.push_back(r.at(i).dst);
+    }
+
+    return nbh;
 }
