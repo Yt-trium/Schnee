@@ -56,8 +56,8 @@ bool FS_OFF_save_planes(const std::string & path, const std::vector<sPlane> & pl
 	while(it != planes.end())
 	{
 		const Vector3 & u = *((*it)->u.get());
-		const Vector3 & v = *((*it)->v.get());
 		const Vector3 & n = *((*it)->normal.get());
+		Vector3 v = Vector3::cross(u, n);
 		const Vector3 & p = *((*it)->center.get());
 
 		//u = Vector3::cross(v, n);
