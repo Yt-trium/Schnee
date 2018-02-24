@@ -54,29 +54,24 @@ void PTC_build_planes(const PointCloud & pc, std::vector<sPlane> & planes, size_
 		*(plane->center.get()) /= k;
 
 		// Calculate n, normal
-		// See https://github.com/PointCloudLibrary/pcl/blob/46cb8fe5589e88e36d79f9b8b8e5f4ff4fceb5de/common/include/pcl/common/impl/centroid.hpp#L180
-		// And http://www.pointclouds.org/documentation/tutorials/normal_estimation.php
+		// From the paper
+		// Symetric matrix, do halg only
 		covariance_matrix.setZero();
 		for(int j = 1; j < num_results; ++j)
 		{
-			current_index = ret_index[j];
-			current_neighbour = pc.points[current_index];
+			current_neighbour = pc.points[ret_index[j]];
+			// OY : y - center
+			Vector3 oy = *(current_neighbour.get()) - *(plane->center);
 
-			xdist = current_neighbour->x - plane->center->x;
-			ydist = current_neighbour->y - plane->center->y;
-			zdist = current_neighbour->z - plane->center->z;
-
-			covariance_matrix(1, 1) += ydist * ydist;
-			covariance_matrix(1, 2) += ydist * zdist;
-			covariance_matrix(2, 2) += zdist * zdist;
-
-			xdist *= xdist;
-			ydist *= xdist;
-			zdist *= xdist;
-
-			covariance_matrix(0, 0) += xdist;
-			covariance_matrix(0, 1) += ydist;
-			covariance_matrix(0, 2) += zdist;
+			for(int i = 0; i < 3; ++i)
+			{
+				float a = oy[i];
+				for(int j = i; j < 3; ++j)
+				{
+					float b = oy[j];
+					covariance_matrix(i, j) += a * b;
+				}
+			}
 		}
         covariance_matrix (1, 0) = covariance_matrix (0, 1);
         covariance_matrix (2, 0) = covariance_matrix (0, 2);
@@ -108,12 +103,12 @@ void PC_compute_surface_from_covaraince(
         //std::cout << "lamb1: " << lamb1 << "\n";
         //std::cout << "lamb2: " << lamb2 << "\n";
         //std::cout << "lamb3: " << lamb3 << "\n";
-		if(lamb1 <= lamb2 && lamb2 <= lamb3)
+		if(lamb1 <= lamb2 && lamb1 <= lamb3)
 			ncol = 0;
-		else if(lamb3 <= lamb1)
-			ncol = 2;
-		else
+		else if(lamb2 <= lamb1 && lamb2 <= lamb3)
 			ncol = 1;
+		else
+			ncol = 2;
 
 		ucol = (ncol + 1) % 3;
 

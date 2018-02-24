@@ -1,6 +1,7 @@
 #include "vector.h"
 
 #include <cmath>
+#include <cassert>
 
 Vector3::Vector3(float px, float py, float pz) :
 	x(px), y(py), z(pz)
@@ -128,6 +129,18 @@ Vector3 &Vector3::operator*=(float b)
 	y *= b;
 	z *= b;
 	return *this;
+}
+
+float Vector3::operator[] (const size_t & i)
+{
+	assert(i >= 0);
+	assert(i <= 2);
+	if(i == 0)
+		return x;
+	else if(i == 1)
+		return y;
+	else
+		return z;
 }
 
 bool Vector3::operator==(const Vector3 & a) const
