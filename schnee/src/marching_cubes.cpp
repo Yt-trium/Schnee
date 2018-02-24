@@ -30,7 +30,7 @@ Grid::Grid(const Grid & other) :
 
 void Grid::create_cells()
 {
-    assert(_size_x * _size_z * _size_y < 20000); // For performance issues
+    assert(_size_x * _size_z * _size_y < 80000); // For performance issues
 	assert(_cells.size() == 0);
 	assert(_corners.size() == 0);
 
@@ -227,7 +227,7 @@ void Grid::get_face_vertex(const int & cell_index, const int & edge_index, const
 	// Search in map
 	bool exists = map->count(index) > 0;
 
-	if(!exists)
+	if(!exists || true)
 	{
 		// Create the point
         int c1, c2;
@@ -239,7 +239,7 @@ void Grid::get_face_vertex(const int & cell_index, const int & edge_index, const
                   (*(cur_cell->corners[c1]) + *(cur_cell->corners[c2])) * 0.5f
                   );
         // Update maps
-		(*map)[index] = out;
+		//(*map)[index] = out;
 	}
 	else
 	{
@@ -378,9 +378,7 @@ void MC_compute_signed_distance(std::vector<sCellPoint> & points,
     std::vector<float>      out_squared_dist(num_results);
 	float                   kd_query[3];
 	size_t                  nbhd_count;
-    Vector3                 z; // Projection of p on plane
-
-	float ignore_threshold = pow((density + noise) * 2, 2);
+    Vector3                 po, z;
 
 	for(int i = 0; i < points.size(); ++i)
 	{
@@ -396,22 +394,23 @@ void MC_compute_signed_distance(std::vector<sCellPoint> & points,
 
         const Plane & current_plane = *(plc.planes[ret_index[0]].get());
 
-        // z = o - ((p - o) . n) * n
-        z = *(current_plane.center) -
-                Vector3::dot((*(p.get()) - *(current_plane.center)), *(current_plane.normal)) *
-                *(current_plane.normal);
+		// i: index of closest plane
+        // z = oi - ((p - oi) . ni) * ni
 
-        if(z.distanceTo(*(current_plane.center)) > density + noise)
+		po = *(p.get()) - *(current_plane.center);
+        z = *(current_plane.center) -
+                (Vector3::dot(po, *(current_plane.normal)) *
+                *(current_plane.normal));
+
+        if(z.distanceTo(*(current_plane.center)) >= density + noise)
         {
         	p->fd = 0.0 / 0.0;
 		}
         else
         {
             // f(p) = (p - o) . n
-            p->fd = Vector3::dot(*(p.get()) - *(current_plane.center.get())
-                                 , *(current_plane.normal.get()));
+            p->fd = Vector3::dot(po
+                                 , *(current_plane.normal));
         }
 	}
-
 }
-
