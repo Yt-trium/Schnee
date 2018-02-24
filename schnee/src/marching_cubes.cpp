@@ -8,6 +8,7 @@ Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) 
 	_size_x = std::ceil((_bbox_max.x - _bbox_min.x ) / _csize );
 	_size_y = std::ceil((_bbox_max.y - _bbox_min.y ) / _csize );
 	_size_z = std::ceil((_bbox_max.z - _bbox_min.z ) / _csize );
+	_size_xy = _size_x * _size_y;
 
 	// Checks
 	assert(_bbox_min.x + _csize * _size_x >= _bbox_max.x);
@@ -20,17 +21,21 @@ Grid::Grid(const Vector3 & bbox_min, const Vector3 & bbox_max, float cell_size) 
 Grid::Grid(const Grid & other) : 
 	_csize(other._csize), _hcsize(other._hcsize),
 	_bbox_min(other._bbox_min), _bbox_max(other._bbox_max),
-	_size_x(other._size_x), _size_y(other._size_y), _size_z(other._size_z)
+	_size_x(other._size_x), _size_y(other._size_y), _size_z(other._size_z), _size_xy(other._size_xy)
 {
 }
+
 
 void Grid::create_cells()
 {
     assert(_size_x * _size_z * _size_y < 20000); // For performance issues
+	assert(_cells.size() == 0);
+	assert(_corners.size() == 0);
 
 	Vector3 cell_center;
 	float h_csize = _csize * 0.5f;
-	float squared_csize = _csize * _csize;
+
+	// Corners direcctions
 	Vector3 directions[8] = {
         // FRONT - Z
         // BACK + Z
@@ -51,166 +56,154 @@ void Grid::create_cells()
         // 7: back Top left
         Vector3(-1, 1, 1) * h_csize
 	};
-	const size_t            size_xy = _size_x * _size_y;
-	size_t                  cell_index;
+
+	bool topx, topy, topz;
 
 	sCell current_cell;
-	sCell other_cell;
 
 	for(float z = 0; z < _size_z; z+=1)
 	{
         cell_center.z = _bbox_min.z + z * _csize + h_csize;
+		topz = z + 1 == _size_z;
         for(float y = 0; y < _size_y; y+=1)
         {
             cell_center.y = _bbox_min.y + y * _csize + h_csize;
+            topy = y + 1 == _size_y;
             for(float x = 0; x < _size_x; x+=1)
             {
                 cell_center.x = _bbox_min.x + x * _csize + h_csize;
+                topx = x + 1 == _size_x;
 
-				current_cell = std::make_shared<Cell>();
-                current_cell->corners.resize(8);
-
-                // X
-
-                if(x == 0)
-                {
-                    // Create left face
-                    if(y == 0)
-                    {
-                        current_cell->corners[0] = std::make_shared<CellPoint>(
-                                    cell_center + directions[0]);
-                        current_cell->corners[3] = std::make_shared<CellPoint>(
-                                    cell_center + directions[3]);
-                    }
-                    if(z == 0)
-                        current_cell->corners[4] = std::make_shared<CellPoint>(
-                                    cell_center + directions[4]);
-                    current_cell->corners[7] = std::make_shared<CellPoint>(
-                                cell_center + directions[7]);
-                }
-                else
-                {
-                    // Connect left face
-                    cell_index = z * (size_xy) + y * _size_x + x - 1;
-                    assert(cell_index < _cells.size());
-                    other_cell = _cells.at(cell_index);
-                    current_cell->corners[4] = other_cell->corners[5];
-                    current_cell->corners[0] = other_cell->corners[1];
-                    current_cell->corners[3] = other_cell->corners[2];
-                    current_cell->corners[7] = other_cell->corners[6];
-                }
-
-                // Y
-
-                if(y == 0)
-                {
-                    // Create bottom face
-                    if(z == 0)
-                        current_cell->corners[1] = std::make_shared<CellPoint>(
-                                    cell_center + directions[1]);
-                    current_cell->corners[2] = std::make_shared<CellPoint>(
-                                cell_center + directions[2]);
-                }
-                else
-                {
-                    cell_index = z * (size_xy) + (y - 1) * _size_x + x;
-                    assert(cell_index < _cells.size());
-                    other_cell = _cells.at(cell_index);
-                    assert(bool(other_cell));
-                    current_cell->corners[1] = other_cell->corners[5];
-                    current_cell->corners[2] = other_cell->corners[6];
-                    if(x == 0)
-                    {
-                        current_cell->corners[3] = other_cell->corners[7];
-                        current_cell->corners[0] = other_cell->corners[4];
-                    }
-                }
-
-                // Z
-
-                if(z == 0)
-                {
-                    current_cell->corners[5] = std::make_shared<CellPoint>(
-                                cell_center + directions[5]);
-                }
-                else
-                {
-                    // current +Z connected to other -Z
-                    cell_index = (z - 1) * (size_xy) + y * _size_x + x;
-                    assert(cell_index < _cells.size());
-                    other_cell = _cells.at(cell_index);
-                    assert(bool(other_cell));
-                    current_cell->corners[5] = other_cell->corners[6];
-                    if(x == 0 && y == 0)
-                    {
-                        current_cell->corners[0] = other_cell->corners[3];
-                        current_cell->corners[1] = other_cell->corners[2];
-                        current_cell->corners[4] = other_cell->corners[7];
-                    }
-                    else if(y == 0)
-                        current_cell->corners[1] = other_cell->corners[2];
-                    else if(x == 0)
-                        current_cell->corners[4] = other_cell->corners[7];
-
-                }
-                current_cell->corners[6] = std::make_shared<CellPoint>(
-                            cell_center + directions[6]);
-
+				// Create cell
+				current_cell = create_corner(x, y, z, cell_center, directions);
                 _cells.push_back(current_cell);
+
+				// Fill up unique corners list
+				add_unique_corners(current_cell, topx, topy, topz);
             }
         }
 	}
-
 }
 
-void Grid::getUniquePoints(std::vector<sCellPoint> & out) const
+
+sCell Grid::create_corner(
+        const float & x, const float & y, const float & z,
+        const Vector3 & cell_center, const Vector3 * directions)
 {
-	int index;
-	int size_xy = _size_x * _size_y;
-	sCell curcell;
+	static size_t cell_index;
 
-	assert(_cells.size() == _size_x * _size_y * _size_z);
+    sCell current_cell = std::make_shared<Cell>();
+    current_cell->corners.resize(8);
+    // X
 
-	bool topx, topy, topz;
-
-	for(int z = 0; z < _size_z; z+=1)
-	{
-		topz = z + 1 == _size_z;
-        for(int y = 0; y < _size_y; y+=1)
+    if(x == 0)
+    {
+        // Create left face
+        if(y == 0)
         {
-            topy = y + 1 == _size_y;
-            for(int x = 0; x < _size_x; x+=1)
-			{
-                topx = x + 1 == _size_x;
+            current_cell->corners[0] = std::make_shared<CellPoint>(
+                                           cell_center + directions[0]);
+            current_cell->corners[3] = std::make_shared<CellPoint>(
+                                           cell_center + directions[3]);
+        }
+        if(z == 0)
+            current_cell->corners[4] = std::make_shared<CellPoint>(
+                                           cell_center + directions[4]);
+        current_cell->corners[7] = std::make_shared<CellPoint>(
+                                       cell_center + directions[7]);
+    }
+    else
+    {
+        // Connect left face
+        const sCell & other_cell = cell(x - 1, y, z);
+        current_cell->corners[4] = other_cell->corners[5];
+        current_cell->corners[0] = other_cell->corners[1];
+        current_cell->corners[3] = other_cell->corners[2];
+        current_cell->corners[7] = other_cell->corners[6];
+    }
 
-				index = z * size_xy + y * _size_x + x;
-				curcell = _cells[index];
-                out.push_back(curcell->corners[0]);
+    // Y
 
-				// If on borders
-				if(topx)
-                    out.push_back(curcell->corners[1]);
+    if(y == 0)
+    {
+        // Create bottom face
+        if(z == 0)
+            current_cell->corners[1] = std::make_shared<CellPoint>(
+                                           cell_center + directions[1]);
+        current_cell->corners[2] = std::make_shared<CellPoint>(
+                                       cell_center + directions[2]);
+    }
+    else
+    {
+        const sCell & other_cell = cell(x, y - 1, z);
+        current_cell->corners[1] = other_cell->corners[5];
+        current_cell->corners[2] = other_cell->corners[6];
+        if(x == 0)
+        {
+            current_cell->corners[3] = other_cell->corners[7];
+            current_cell->corners[0] = other_cell->corners[4];
+        }
+    }
 
-				if(topy)
-                {
-                    out.push_back(curcell->corners[4]);
-                    if(topx)
-                        out.push_back(curcell->corners[5]);
-                }
+    // Z
 
-				if(topz)
-				{
-                    out.push_back(curcell->corners[3]);
-                    if(topx && topy)
-                        out.push_back(curcell->corners[6]);
-                    else if(topx)
-                        out.push_back(curcell->corners[2]);
-                    else if(topy)
-                        out.push_back(curcell->corners[6]);
-                }
-			}
+    if(z == 0)
+    {
+        current_cell->corners[5] = std::make_shared<CellPoint>(
+                                       cell_center + directions[5]);
+    }
+    else
+    {
+        // current +Z connected to other -Z
+        const sCell & other_cell = cell(x, y, z - 1);
+        current_cell->corners[5] = other_cell->corners[6];
+        if(x == 0 && y == 0)
+        {
+            current_cell->corners[0] = other_cell->corners[3];
+            current_cell->corners[1] = other_cell->corners[2];
+            current_cell->corners[4] = other_cell->corners[7];
+        }
+        else if(y == 0)
+            current_cell->corners[1] = other_cell->corners[2];
+        else if(x == 0)
+            current_cell->corners[4] = other_cell->corners[7];
+
+    }
+    current_cell->corners[6] = std::make_shared<CellPoint>(
+                                   cell_center + directions[6]);
+
+	return current_cell;
+}
+
+void Grid::add_unique_corners(const sCell & current_cell, const bool& topx, const bool& topy, const bool& topz)
+{
+    _corners.push_back(current_cell->corners[0]);
+
+    // Borders
+    if(topx)
+        _corners.push_back(current_cell->corners[1]);
+
+    if(topy)
+    {
+        _corners.push_back(current_cell->corners[4]);
+        if(topx)
+            _corners.push_back(current_cell->corners[5]);
+    }
+
+    if(topz)
+    {
+        _corners.push_back(current_cell->corners[3]);
+        if(topx && topy)
+		{
+            _corners.push_back(current_cell->corners[6]);
+            _corners.push_back(current_cell->corners[7]);
+            _corners.push_back(current_cell->corners[2]);
 		}
-	}
+        else if(topx)
+            _corners.push_back(current_cell->corners[2]);
+		else if(topy)
+            _corners.push_back(current_cell->corners[7]);
+    }
 }
 
 void MC_compute_signed_distance(std::vector<sCellPoint> & points,

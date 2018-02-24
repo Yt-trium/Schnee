@@ -96,13 +96,12 @@ int main(int argc, const char * argv[])
     grid->create_cells();
 
 	// Calculate signed distance function
-	std::vector<sCellPoint> cell_corners;
-	grid->getUniquePoints(cell_corners);
+	std::vector<sCellPoint> cell_corners = grid->uniquePoints();
 	MC_compute_signed_distance(cell_corners, plc, index, density, noise);
 
 	// Debug
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
-	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 5, 0.06f);
+	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
 	FS_OFF_save_cell_points("/tmp/out.cells.values.off", cell_corners);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
 	FS_OFF_save_cells_position("/tmp/out.grid.corners.off", grid->cells());

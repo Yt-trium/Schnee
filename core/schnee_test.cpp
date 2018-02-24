@@ -267,23 +267,21 @@ TEST_CASE("Grid unique points all unique")
 	sGrid grid = std::make_shared<Grid>(min, max, cell_size);
 	grid->create_cells();
 
-	// Get result
-	std::vector<sCellPoint> points;
-	grid->getUniquePoints(points);
+	// Get corners
+	const std::vector<sCellPoint> & points = grid->uniquePoints();
 
 	// Check if all points are unique
-	size_t size = points.size();
-	std::vector<sCellPoint> uniquePoints;
+	std::vector<CellPoint *> uniquePoints;
 	for(int i = 0; i < points.size(); ++i)
 	{
-		sCellPoint p = points[i];
+		CellPoint * p = points[i].get();
 		if(std::find(uniquePoints.begin(), uniquePoints.end(), p) == uniquePoints.end())
 		{
             uniquePoints.push_back(p);
 		}
 	}
 
-	REQUIRE(size == uniquePoints.size());
+	REQUIRE(points.size() == uniquePoints.size());
 }
 
 TEST_CASE("Grid unique points")
@@ -316,8 +314,7 @@ TEST_CASE("Grid unique points")
 	}
 
 	// Get result
-	std::vector<sCellPoint> points;
-	grid->getUniquePoints(points);
+	const std::vector<sCellPoint> & points = grid->uniquePoints();
 
     REQUIRE(points.size() == uniquePoints.size());
 }

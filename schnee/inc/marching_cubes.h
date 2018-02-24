@@ -59,13 +59,24 @@ public:
 
 	void create_cells();
 
+	const sCell & cell(const float & x, const float & y, const float & z) const
+	{
+		assert(z * _size_xy + y * _size_x + x < _cells.size());
+		assert(bool(_cells.at(z * _size_xy + y * _size_x + x)));
+		return _cells.at(z * _size_xy + y * _size_x + x);
+	}
+
 	const std::vector<sCell> & cells() const { return _cells; }
 
-	/**
-	 * @brief Return points of the grid so that we can access all points but only one time.
-	 * @return
-	 */
-    void getUniquePoints(std::vector<sCellPoint> &) const;
+    const std::vector<sCellPoint> & uniquePoints() const
+	{
+		return _corners;
+	}
+
+    std::vector<sCellPoint> uniquePoints()
+	{
+		return _corners;
+	}
 
 	int sizeX() const { return _size_x; }
 	int sizeY() const { return _size_y; }
@@ -76,8 +87,15 @@ private:
 	Vector3 _bbox_max;
 	float _csize;
 	float _hcsize;
-	int _size_x, _size_y, _size_z;
+	int _size_x, _size_y, _size_z, _size_xy;
 	std::vector<sCell> _cells;
+	std::vector<sCellPoint> _corners; // List of unique corners in the grid
+
+	sCell create_corner(
+	        const float &, const float &, const float &,
+	        const Vector3 &, const Vector3 *);
+
+	void add_unique_corners(const sCell &, const bool&, const bool&, const bool&);
 };
 
 typedef std::shared_ptr<Grid> sGrid;
