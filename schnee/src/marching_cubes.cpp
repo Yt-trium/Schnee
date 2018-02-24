@@ -1,3 +1,5 @@
+#include "LookUpTable.h"
+
 #include "marching_cubes.h"
 #include "plane.h"
 
@@ -82,6 +84,103 @@ void Grid::create_cells()
 				add_unique_corners(current_cell, topx, topy, topz);
             }
         }
+	}
+}
+
+static void edge_cornders_indices(const int & i, int & a, int & b)
+{
+	/**
+     * Cube description:
+     *         7 ________ 6           _____6__             ________
+     *         /|       /|         7/|       /|          /|       /|
+     *       /  |     /  |        /  |     /5 |        /  6     /  |
+     *   4 /_______ /    |      /__4____ /    10     /_______3/    |
+     *    |     |  |5    |     |    11  |     |     |     |  |   2 |
+     *    |    3|__|_____|2    |     |__|__2__|     | 4   |__|_____|
+     *    |    /   |    /      8   3/   9    /      |    /   |    /
+     *    |  /     |  /        |  /     |  /1       |  /     5  /
+     *    |/_______|/          |/___0___|/          |/_1_____|/
+     *   0          1        0          1
+	 */
+    a = i % 8;
+    b = (i + 1) % 4;
+    if(i == 11)
+        b = 7;
+    else if(i > 7)
+        b += 3;
+    else if(i > 3)
+        b += 4;
+	assert(a >= 0 && a < 8);
+	assert(b >= 0 && b < 8);
+	assert(a != b);
+}
+
+void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
+                        float density, float noise, float isolevel, mesh::Mesh & out)
+{
+
+	// Compute signed distance
+	MC_compute_signed_distance(_corners, plc, pci, density, noise);
+
+	const char * cell_case;
+	int t1, t2, t3;
+	int et;
+	int c1, c2;
+	bool cell_ok;
+	mesh::sFace newface;
+	sVector3 newpoint;
+	// GO
+	for(int i = 0; i < _cells.size(); ++i)
+	{
+		sCell & cur_cell = _cells.at(i);
+		cell_ok = true;
+
+		// Calculate cell case
+		for(int j = 0, b = 1; j < 8; ++j, b *= 2)
+		{
+			if(cur_cell->corners[j]->fd != cur_cell->corners[j]->fd)
+			{
+                // Undefined distance
+				//cell_ok = false;
+				continue;
+			}
+			if(cur_cell->corners[j]->fd < isolevel) cur_cell->situation |= b;
+        }
+
+		//if(!cell_ok) continue;
+
+		assert(int(cur_cell->situation) >= 0);
+		assert(int(cur_cell->situation) <= 255);
+
+		// Look up edges
+        cell_case = casesClassic[cur_cell->situation];
+
+		// Read triangles
+		for(int t = 0; t < 15; t += 3)
+		{
+			if(cell_case[t] == -1) break;
+			newface = std::make_shared<mesh::Face>();
+
+			// for each edge of the cell for this face
+			for(int e = 0; e < 3; e++)
+			{
+				// edge indice
+				et = cell_case[t + e];
+
+				// Get corners indices of this edge
+				edge_cornders_indices(et, c1, c2);
+
+				// Create point
+				newpoint = std::make_shared<Vector3>(
+				               (*(cur_cell->corners[c1]) + *(cur_cell->corners[c2])) * 0.5f
+				               );
+				// Push vertex
+				newface->points.push_back(newpoint);
+			}
+
+			// Push face
+			out.faces.push_back(newface);
+		}
 	}
 }
 
@@ -251,10 +350,5 @@ void MC_compute_signed_distance(std::vector<sCellPoint> & points,
         }
 	}
 
-}
-
-bool MC_is_point_in_cell(const Vector3 & point, const Vector3 & cell, const float & radius)
-{
-	return point <= cell + radius && point >= cell - radius;
 }
 

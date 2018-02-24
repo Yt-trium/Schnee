@@ -1,13 +1,14 @@
 #ifndef __MCUBES__
 #define __MCUBES__
 
-#include "vector.h"
 #include "cloud.h"
+#include "mesh.h"
 #include "plane.h"
+#include "vector.h"
 
-#include <vector>
-#include <memory>
 #include <deque>
+#include <memory>
+#include <vector>
 
 #define DF_UNDEFINED -10.0f
 
@@ -47,6 +48,8 @@ public:
 	 */
     std::vector<sCellPoint> corners;
 
+	int situation = 0;
+
 };
 
 typedef std::shared_ptr<Cell> sCell;
@@ -58,6 +61,8 @@ public:
 	Grid(const Grid &);
 
 	void create_cells();
+
+	void compute_mesh(const PlaneCloud &, const plane_cloud_index &, float, float, float, mesh::Mesh &);
 
 	const sCell & cell(const float & x, const float & y, const float & z) const
 	{
@@ -102,9 +107,6 @@ typedef std::shared_ptr<Grid> sGrid;
 
 void MC_compute_signed_distance(std::vector<sCellPoint> &,
                                 const PlaneCloud &, const plane_cloud_index &, float, float);
-
-bool MC_is_point_in_cell(const Vector3&, const Vector3&, const float&);
-
 
 
 #endif

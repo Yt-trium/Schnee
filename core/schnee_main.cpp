@@ -1,10 +1,11 @@
-#include "vector.h"
-#include "plane.h"
+#include "cloud.h"
 #include "file_loader.h"
 #include "file_saver.h"
-#include "cloud.h"
-#include "orientationfixer.h"
 #include "marching_cubes.h"
+#include "mesh.h"
+#include "orientationfixer.h"
+#include "plane.h"
+#include "vector.h"
 
 #include <algorithm>
 #include <cassert>
@@ -14,43 +15,34 @@
 #include <string>
 #include <vector>
 
-void dump_mem_usage()
-{
-	FILE* f = fopen("/proc/self/statm","rt");
-	if (!f) return;
-	char str[300];
-	size_t n = fread(str, 1, 200, f);
-	str[n] = 0;
-	printf("MEM: %s\n", str);
-	fclose(f);
-}
-
-
 int main(int argc, const char * argv[])
 {
     if(argc < 3)
 	{
 		std::cout << "USAGE:\n";
-        std::cout << argv[0] << " off_input_file off_out_file [k] density noise" << "\n";
-        std::cout << "by default: k=4, density=mesh size/point count, noise=0" << std::endl;
+        std::cout << argv[0] << " off_input_file off_out_file k density noise iso_level" << "\n";
+        std::cout << "by default: k=8, density=mesh size/point count, noise=0, iso_level=0" << std::endl;
 		exit(2);
 	}
 
 	// In off file
 	std::string pin = argv[1];
 	std::string pout = argv[2];
-    int k = 4;
-    float density = -1.0f, noise = 0.0f;
+    int k = 8;
+    float density = -1.0f, noise = 0.0f, isolevel = 0.0f;
 
     if(argc > 3) k = std::stoi(argv[3]);
     if(argc > 4) density = std::stof(argv[4]);
     if(argc > 5) noise = std::stof(argv[5]);
+	if(argc > 6) isolevel = std::stof(argv[6]);
 	assert(k > 1);
 	assert(noise >= 0.0f);
+	assert(isolevel >= 0.0f);
 	std::cout << "IN FILE: " << pin << "\n";
 	std::cout << "OUT FILE: " << pout << "\n";
     std::cout << "K: " << k << std::endl;
     std::cout << "NOISE: " << noise << std::endl;
+    std::cout << "ISO LEVEL: " << isolevel << std::endl;
 
 	// Create empty point cloud
 	PointCloud pc;
@@ -95,16 +87,23 @@ int main(int argc, const char * argv[])
     std::cout << "GRID REAL SIZE: " << size << std::endl;
     grid->create_cells();
 
+	/*
 	// Calculate signed distance function
 	std::vector<sCellPoint> cell_corners = grid->uniquePoints();
 	MC_compute_signed_distance(cell_corners, plc, index, density, noise);
+	FS_OFF_save_cell_points("/tmp/out.cells.values.off", cell_corners);
+	*/
+
+	// Compute marching cubes
+	mesh::Mesh generated_mesh;
+	grid->compute_mesh(plc, index, density, noise, isolevel, generated_mesh);
 
 	// Debug
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
-	FS_OFF_save_cell_points("/tmp/out.cells.values.off", cell_corners);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
 	FS_OFF_save_cells_position("/tmp/out.grid.corners.off", grid->cells());
+	FS_OFF_save_mesh(pout, generated_mesh);
 
 	return 0;
 }
