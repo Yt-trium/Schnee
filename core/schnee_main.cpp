@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <ctime>
 #include <deque>
 #include <iostream>
 #include <string>
@@ -17,6 +18,7 @@
 
 int main(int argc, const char * argv[])
 {
+
     if(argc < 3)
 	{
 		std::cout << "USAGE:\n";
@@ -24,6 +26,7 @@ int main(int argc, const char * argv[])
         std::cout << "by default: k=8, density=mesh size/point count, noise=0, iso_level=0" << std::endl;
 		exit(2);
 	}
+	int start_s=clock();
 
 	// In off file
 	std::string pin = argv[1];
@@ -61,7 +64,7 @@ int main(int argc, const char * argv[])
 	// Fix planes orientation
 	PlaneCloud plc;
 	plc.planes = planes;
-	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(10));
+	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(30));
 	index.buildIndex();
 
     orientationFixer(plc,index,k);
@@ -99,11 +102,17 @@ int main(int argc, const char * argv[])
 	grid->compute_mesh(plc, index, density, noise, isolevel, generated_mesh);
 
 	// Debug
-	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
-	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
+	//FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
+	//FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
-	FS_OFF_save_cells_position("/tmp/out.grid.corners.off", grid->cells());
+	//FS_OFF_save_cells_position("/tmp/out.grid.corners.off", grid->cells());
+
+	// Export
 	FS_OFF_save_mesh(pout, generated_mesh);
+
+	int stop_s=clock();
+	std::cout << "TOTAL EXECUTION TIME: " << (stop_s-start_s)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "TOTAL EXECUTION TIME: " << (stop_s-start_s)/double(CLOCKS_PER_SEC) * 1000 << " ms" << std::endl;
 
 	return 0;
 }

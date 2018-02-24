@@ -122,12 +122,20 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 	// Compute signed distance
 	MC_compute_signed_distance(_corners, plc, pci, density, noise);
 
+	// Common
 	const char * cell_case;
 	int et;
-	int c1, c2;
 	bool cell_ok;
 	mesh::sFace newface;
 	sVector3 newpoint;
+
+	// KD Tree
+	const size_t            num_results = 1;
+    std::vector<size_t>     ret_index(num_results);
+    std::vector<float>      out_squared_dist(num_results);
+	float                   kd_query[3];
+	size_t                  nbhd_count;
+	float                   ignore_threshold = (density + noise) * (density + noise);
 
 	// Map storing created vertices
 	point_map edges_right; // Edges 0, 2, 4, 6
@@ -138,7 +146,20 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 	for(int i = 0; i < _cells.size(); ++i)
 	{
 		sCell & cur_cell = _cells.at(i);
-		cell_ok = true;
+
+		// Check if cell intersect the surface
+		kd_query[0] = (cur_cell->corners[0]->x + cur_cell->corners[6]->x) * 0.5f;
+		kd_query[1] = (cur_cell->corners[0]->y + cur_cell->corners[6]->y) * 0.5f;
+		kd_query[2] = (cur_cell->corners[0]->z + cur_cell->corners[6]->z) * 0.5f;
+
+        nbhd_count = pci.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
+        assert(nbhd_count == num_results);
+
+		// Ignore if not on the surface
+		if(out_squared_dist[0] >= ignore_threshold)
+			continue;
+
+		cell_ok = false;
 
 		// Calculate cell case
 		for(int j = 0, b = 1; j < 8; ++j, b *= 2)
@@ -149,10 +170,14 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 				//cell_ok = false;
 				continue;
 			}
-			if(cur_cell->corners[j]->fd < isolevel) cur_cell->situation |= b;
+			if(cur_cell->corners[j]->fd < isolevel)
+			{
+				cell_ok = true;
+				cur_cell->situation |= b;
+			}
         }
 
-		//if(!cell_ok) continue;
+		if(!cell_ok) continue;
 
 		assert(int(cur_cell->situation) >= 0);
 		assert(int(cur_cell->situation) <= 255);
@@ -227,7 +252,7 @@ void Grid::get_face_vertex(const int & cell_index, const int & edge_index, const
 	// Search in map
 	bool exists = map->count(index) > 0;
 
-	if(!exists || true)
+	if(!exists)
 	{
 		// Create the point
         int c1, c2;
@@ -239,7 +264,7 @@ void Grid::get_face_vertex(const int & cell_index, const int & edge_index, const
                   (*(cur_cell->corners[c1]) + *(cur_cell->corners[c2])) * 0.5f
                   );
         // Update maps
-		//(*map)[index] = out;
+        (*map)[index] = out;
 	}
 	else
 	{
