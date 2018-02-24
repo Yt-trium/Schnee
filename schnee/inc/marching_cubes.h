@@ -7,10 +7,13 @@
 #include "vector.h"
 
 #include <deque>
+#include <map>
 #include <memory>
 #include <vector>
 
 #define DF_UNDEFINED -10.0f
+
+typedef std::map<int, sVector3> point_map;
 
 class CellPoint : public Vector3
 {
@@ -63,6 +66,10 @@ public:
 	void create_cells();
 
 	void compute_mesh(const PlaneCloud &, const plane_cloud_index &, float, float, float, mesh::Mesh &);
+
+	void get_face_vertex(const int &, const int &, const sCell &,
+	                     point_map &, point_map &, point_map &,
+	                     sVector3 &);
 
 	const sCell & cell(const float & x, const float & y, const float & z) const
 	{

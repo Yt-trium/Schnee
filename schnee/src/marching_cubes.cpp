@@ -123,12 +123,17 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 	MC_compute_signed_distance(_corners, plc, pci, density, noise);
 
 	const char * cell_case;
-	int t1, t2, t3;
 	int et;
 	int c1, c2;
 	bool cell_ok;
 	mesh::sFace newface;
 	sVector3 newpoint;
+
+	// Map storing created vertices
+	point_map edges_right; // Edges 0, 2, 4, 6
+	point_map edges_top; // Edges 8, 9, 10, 11
+	point_map edges_depth; // Edges 1, 3, 5, 7
+
 	// GO
 	for(int i = 0; i < _cells.size(); ++i)
 	{
@@ -167,13 +172,9 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 				// edge indice
 				et = cell_case[t + e];
 
-				// Get corners indices of this edge
-				edge_cornders_indices(et, c1, c2);
+				get_face_vertex(i, et, cur_cell, edges_right, edges_top, edges_depth, newpoint);
+				assert(newpoint);
 
-				// Create point
-				newpoint = std::make_shared<Vector3>(
-				               (*(cur_cell->corners[c1]) + *(cur_cell->corners[c2])) * 0.5f
-				               );
 				// Push vertex
 				newface->points.push_back(newpoint);
 			}
@@ -181,6 +182,68 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 			// Push face
 			out.faces.push_back(newface);
 		}
+	}
+}
+
+void Grid::get_face_vertex(const int & cell_index, const int & edge_index, const sCell & cur_cell,
+                           point_map & edges_right, point_map & edges_top, point_map & edges_depth,
+                           sVector3 & out)
+{
+    // See if the point has already been created
+	// index formula z * _size_xy + y * _size_x + x
+	int index;
+	point_map * map;
+	switch (edge_index) {
+		case 0:
+			map = &edges_right; index = cell_index; break;
+		case 1:
+			map = &edges_depth; index = cell_index + 1; break; // X + 1
+		case 2:
+			map = &edges_right; index = cell_index + _size_xy; break; // Z + 1
+		case 3:
+			map = &edges_depth; index = cell_index; break;
+		case 4:
+			map = &edges_right; index = cell_index + _size_x; break; // Y + 1
+		case 5:
+			map = &edges_depth; index = cell_index + 1 + _size_x; break; // Y + 1, X + 1
+		case 6:
+			map = &edges_right; index = cell_index + _size_xy + _size_x; break; // Z + 1, Y + 1
+		case 7:
+			map = &edges_depth; index = cell_index + _size_x; break; // Y + 1
+		case 8:
+			map = &edges_top; index = cell_index; break;
+		case 9:
+			map = &edges_top; index = cell_index + 1; break; // X + 1
+		case 10:
+			map = &edges_top; index = cell_index + 1 + _size_xy; break; // Z + 1, X + 1
+		case 11:
+			map = &edges_top; index = cell_index + _size_xy; break; // Z + 1
+			break;
+		default:
+			assert(false);
+			break;
+	}
+
+	// Search in map
+	bool exists = map->count(index) > 0;
+
+	if(!exists)
+	{
+		// Create the point
+        int c1, c2;
+        // Get corners indices of this edge
+        edge_cornders_indices(edge_index, c1, c2);
+
+        // Create point
+		out = std::make_shared<Vector3>(
+                  (*(cur_cell->corners[c1]) + *(cur_cell->corners[c2])) * 0.5f
+                  );
+        // Update maps
+		(*map)[index] = out;
+	}
+	else
+	{
+		out = (*map)[index];
 	}
 }
 
