@@ -92,7 +92,7 @@ void flip(sVector3 &v)
 void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, int current, int from)
 {
     // std::cout << from << " " << current << std::endl;
-    // std::vector<int> nbh;
+    std::vector<int> nbh;
 
     nbh = getNBH(r,current);
 
