@@ -40,11 +40,11 @@ int main(int argc, const char * argv[])
 	assert(k > 1);
 	assert(noise >= 0.0f);
 	assert(isolevel >= 0.0f);
-	std::cout << "IN FILE: " << pin << "\n";
-	std::cout << "OUT FILE: " << pout << "\n";
-    std::cout << "K: " << k << std::endl;
-    std::cout << "NOISE: " << noise << std::endl;
-    std::cout << "ISO LEVEL: " << isolevel << std::endl;
+	std::cout << "IN FILE: \t\t" << pin << "\n";
+	std::cout << "OUT FILE: \t" << pout << "\n";
+    std::cout << "K: \t\t" << k << std::endl;
+    std::cout << "NOISE: \t\t" << noise << std::endl;
+    std::cout << "ISO LEVEL: \t" << isolevel << std::endl;
 
 	// Create empty point cloud
 	PointCloud pc;
@@ -88,21 +88,16 @@ int main(int argc, const char * argv[])
     {
         density = (8 * size.x * size.y * size.z) / (float) planes.size();
     }
-    std::cout << "DENSITY: " << density << std::endl;
-    std::cout << "POINT COUNT: " << planes.size() << std::endl;
+    std::cout << "DENSITY: \t\t" << density << std::endl;
+    std::cout << "POINT COUNT: \t" << planes.size() << std::endl;
     assert(density > 0.0f);
     sGrid grid = std::make_shared<Grid>(bbox_min, bbox_max, density);
-    std::cout << "GRID SIZE: " << grid->sizeX() << "x" << grid->sizeY() << "x" <<
+    std::cout << "GRID SIZE: \t" << grid->sizeX() << "x" << grid->sizeY() << "x" <<
                  grid->sizeZ() << " -> " << grid->sizeX() * grid->sizeY() * grid->sizeZ() << std::endl;
-    std::cout << "GRID REAL SIZE: " << size << std::endl;
+    std::cout << "GRID REAL SIZE: \t" << size << std::endl;
 	int start_grid_cells = clock();
     grid->create_cells();
 	int end_grid_cells = clock();
-
-	// Calculate signed distance function
-	std::vector<sCellPoint> cell_corners = grid->uniquePoints();
-	MC_compute_signed_distance(cell_corners, plc, index, density, noise);
-	FS_OFF_save_cell_points("/tmp/out.cells.values.off", cell_corners, isolevel);
 
 	// Compute marching cubes
 	mesh::Mesh generated_mesh;
@@ -110,24 +105,29 @@ int main(int argc, const char * argv[])
 	grid->compute_mesh(plc, index, density, noise, isolevel, generated_mesh);
 	int end_compute_mesh = clock();
 
+	int start_export = clock();
+
 	// Debug
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
+	FS_OFF_save_cell_points("/tmp/out.cells.values.off", grid->uniquePoints(), isolevel);
 
 	// Export
 	FS_OFF_save_mesh(pout, generated_mesh);
+	int end_export = clock();
 
 	int stop_s=clock();
+	std::cout << "\nEXECUTION TIMES:\n";
+	std::cout << "READ FILE: \t" << (end_loading_file-start_loading_file)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "BUILD PLANES: \t" << (end_building_planes-start_building_planes)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "BUILD KD TREE: \t" << (end_kd_planes-start_kd_planes)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "FIXING NORMALS: \t" << (end_mst-start_mst)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "CREATING CELLS: \t" << (end_grid_cells-start_grid_cells)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "COMPUTE MESH: \t" << (end_compute_mesh-start_compute_mesh)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "EXPORT MESH: \t" << (end_export-start_export)/double(CLOCKS_PER_SEC) << " s" << std::endl;
 	std::cout << "\n";
-	std::cout << "READ FILE EXECUTION TIME: " << '\t' << (end_loading_file-start_loading_file)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
-	std::cout << "BUILD PLANES EXECUTION TIME: " << '\t'<< (end_building_planes-start_building_planes)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
-	std::cout << "BUILD KD TREE PLANES EXECUTION TIME: " << '\t' << (end_kd_planes-start_kd_planes)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
-	std::cout << "FIXING NORMALS ORIENTATION EXECUTION TIME: " << '\t' << (end_mst-start_mst)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
-	std::cout << "CREATING CELLS EXECUTION TIME: " << '\t' << (end_grid_cells-start_grid_cells)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
-	std::cout << "COMPUTE MESH EXECUTION TIME: " << '\t' << (end_grid_cells-start_grid_cells)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
-	std::cout << "\n";
-	std::cout << "TOTAL EXECUTION TIME: " << '\t' << (stop_s-start_s)/double(CLOCKS_PER_SEC) << " seconds" << std::endl;
+	std::cout << "TOTAL: \t\t" << (stop_s-start_s)/double(CLOCKS_PER_SEC) << " s" << std::endl;
 	return 0;
 }
 
