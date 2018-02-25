@@ -102,7 +102,7 @@ int main(int argc, const char * argv[])
 	// Compute marching cubes
 	mesh::Mesh generated_mesh;
 	int start_compute_mesh = clock();
-	grid->compute_mesh(plc, index, density, noise, isolevel, generated_mesh);
+	grid->compute_mesh(plc, index, density * 2, noise * 2, isolevel, generated_mesh);
 	int end_compute_mesh = clock();
 
 	int start_export = clock();
@@ -111,7 +111,8 @@ int main(int argc, const char * argv[])
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
-	FS_OFF_save_cell_points("/tmp/out.cells.values.off", grid->uniquePoints(), isolevel);
+	if(grid->uniquePoints().size() < 20000) // Too long otherwise
+        FS_OFF_save_cell_points("/tmp/out.cells.values.off", grid->uniquePoints(), isolevel);
 
 	// Export
 	FS_OFF_save_mesh(pout, generated_mesh);

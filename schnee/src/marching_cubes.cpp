@@ -148,6 +148,7 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 		sCell & cur_cell = _cells.at(i);
 
 		// Check if cell intersect the surface
+#if 0
 		kd_query[0] = (cur_cell->corners[0]->x + cur_cell->corners[6]->x) * 0.5f;
 		kd_query[1] = (cur_cell->corners[0]->y + cur_cell->corners[6]->y) * 0.5f;
 		kd_query[2] = (cur_cell->corners[0]->z + cur_cell->corners[6]->z) * 0.5f;
@@ -158,8 +159,9 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 		// Ignore if not on the surface
 		if(out_squared_dist[0] >= ignore_threshold)
 			continue;
+#endif
 
-		cell_ok = false;
+		cell_ok = true;
 
 		// Calculate cell case
 		for(int j = 0, b = 1; j < 8; ++j, b *= 2)
@@ -167,12 +169,11 @@ void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
 			if(cur_cell->corners[j]->fd != cur_cell->corners[j]->fd)
 			{
                 // Undefined distance
-				//cell_ok = false;
-				continue;
+				cell_ok = false;
+				break;
 			}
 			if(cur_cell->corners[j]->fd < isolevel)
 			{
-				cell_ok = true;
 				cur_cell->situation |= b;
 			}
         }
