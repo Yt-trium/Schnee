@@ -21,7 +21,7 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
  * @param plc
  * @return
  */
-int maxZ(const PlaneCloud &plc);
+size_t maxZ(const PlaneCloud &plc);
 
 /**
  * @brief flip
@@ -36,7 +36,7 @@ void flip(sVector3 &v);
  * @param current : the current plane
  * @param from : the plane who call us
  */
-void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, int current, int from);
+void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, size_t current, size_t from);
 
 /**
  * @brief getNBH
@@ -44,6 +44,6 @@ void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc,
  * @param current
  * @return
  */
-std::vector<int> getNBH(const std::vector<Kruskal::KEdge> &r, int current);
+std::vector<size_t> getNBH(const std::vector<Kruskal::KEdge> &r, size_t current);
 
 #endif // ORIENTATIONFIXER_H

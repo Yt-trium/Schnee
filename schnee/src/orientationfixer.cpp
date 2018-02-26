@@ -24,10 +24,10 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
     float               kd_query[3];
     size_t              nbhd_count;
 
-    int e = 0, id;
+    size_t e = 0, id;
     float w;
 
-    for(int i = 0; i < plc.planes.size(); ++i)
+    for(size_t i = 0; i < plc.planes.size(); ++i)
     {
         kd_query[0] = plc.planes.at(i)->center->x;
         kd_query[1] = plc.planes.at(i)->center->y;
@@ -38,20 +38,23 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
         assert(nbhd_count == num_results);
 
         sVector3 n1 = plc.planes.at(i)->normal;
+		assert(i >= 0);
 
-        for(int j = 0; j <= k; ++j)
+        for(size_t j = 0; j <= k; ++j)
         {
 			if(ret_index[j] == i) continue;
             sVector3 n2 = plc.planes.at(ret_index[j])->normal;
 
             w = 1 - abs(Vector3::dot((*n1),(*n2)));
 
+			assert(ret_index[j] >= 0);
             if(kruskal.addEdge(i,ret_index[j],w))
                 e++;
         }
     }
 
     kruskal.setEdges(e);
+
     r = kruskal.MST();
 
     // search for the max z plane
@@ -67,12 +70,12 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
     depthSearchFix(r,plc,id,id);
 }
 
-int maxZ(const PlaneCloud &plc)
+size_t maxZ(const PlaneCloud &plc)
 {
-    int r = 0;
+    size_t r = 0;
     float max = plc.planes.at(0)->center->z;
 
-    for(int i = 1; i < plc.planes.size(); ++i)
+    for(size_t i = 1; i < plc.planes.size(); ++i)
     {
         if(max < plc.planes.at(i)->center->z)
         {
@@ -89,23 +92,23 @@ void flip(sVector3 &v)
     *(v) *= -1;
 }
 
-void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, int current, int from)
+void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc, size_t current, size_t from)
 {
     // std::cout << from << " " << current << std::endl;
-    std::vector<int> nbh;
+    std::vector<size_t> nbh;
 
     nbh = getNBH(r,current);
 
     // fix les voisins (pas from)
-    for(int i = 0; i < nbh.size();i++)
+    for(size_t i = 0; i < nbh.size();i++)
     {
-        int id = nbh.at(i);
+        size_t id = nbh.at(i);
         if(Vector3::dot(*(plc.planes.at(current)->normal),*(plc.planes.at(id)->normal)) < 0)
             flip(plc.planes.at(id)->normal);
     }
 
     // appel les voisins.
-    for(int i = 0; i < nbh.size();i++)
+    for(size_t i = 0; i < nbh.size();i++)
     {
         if(nbh.at(i) != from)
             depthSearchFix(r,plc,nbh.at(i),current);
@@ -113,11 +116,11 @@ void depthSearchFix(const std::vector<Kruskal::KEdge> &r, const PlaneCloud &plc,
 
 }
 
-std::vector<int> getNBH(const std::vector<Kruskal::KEdge> &r, int current)
+std::vector<size_t> getNBH(const std::vector<Kruskal::KEdge> &r, size_t current)
 {
-    std::vector<int> nbh;
+    std::vector<size_t> nbh;
 
-    for(int i = 0; i < r.size();i++)
+    for(size_t i = 0; i < r.size();i++)
     {
         if(r.at(i).dst == current)
             nbh.push_back(r.at(i).src);

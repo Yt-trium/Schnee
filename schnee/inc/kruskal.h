@@ -19,8 +19,8 @@ public:
     class KEdge
     {
     public:
-        int src;
-        int dst;
+        size_t src;
+        size_t dst;
         float weight;
     };
     /**
@@ -29,8 +29,8 @@ public:
     class KGraph
     {
     public:
-        int V;  // number of vertices
-        int E;  // number of edges
+        size_t V;  // number of vertices
+        size_t E;  // number of edges
         std::vector<KEdge> edges;
     };
     /**
@@ -39,27 +39,27 @@ public:
     class KSubset
     {
     public:
-        int parent;
-        int rank;
+        size_t parent;
+        size_t rank;
     };
 
     /**
      * @brief setEdges number
      * @param E
      */
-    void setEdges(int E);
+    void setEdges(size_t E);
     /**
      * @brief setVertices number
      * @param V
      */
-    void setVertices(int V);
+    void setVertices(size_t V);
     /**
      * @brief addEdge
      * @param src
      * @param dst
      * @param weight
      */
-    bool addEdge(int src, int dst, float weight);
+    bool addEdge(size_t src, size_t dst, float weight);
     /**
      * @brief Compute the Minimum Spanning Tree
      */
@@ -74,14 +74,14 @@ private:
      * @param i
      * @return
      */
-    int find(std::vector<KSubset> subsets, int i);
+    int find(std::vector<KSubset> subsets, size_t i);
     /**
      * @brief set_union union of two sets
      * @param subsets
      * @param x
      * @param y
      */
-    void set_union(std::vector<KSubset> *subsets, int x, int y);
+    void set_union(std::vector<KSubset> *subsets, size_t x, size_t y);
 };
 
 /**
