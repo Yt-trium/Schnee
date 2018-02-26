@@ -67,6 +67,7 @@ std::vector<Kruskal::KEdge> Kruskal::MST()
     }
     while (result.size() < this->graph.V - 1)
         {
+		    assert(i < this->graph.edges.size());
             KEdge next_edge = this->graph.edges[i++];
 
             size_t x = find(subsets, next_edge.src);
