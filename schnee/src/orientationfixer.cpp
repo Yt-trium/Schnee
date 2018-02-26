@@ -1,4 +1,5 @@
 #include "orientationfixer.h"
+#include <ctime>
 
 /* For each point in the cloud
  * Find the neighbor (oi and oj are close)
@@ -27,6 +28,7 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
     size_t e = 0, id;
     float w;
 
+	int start_graph = clock();
     for(size_t i = 0; i < plc.planes.size(); ++i)
     {
         kd_query[0] = plc.planes.at(i)->center->x;
@@ -52,14 +54,18 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
                 e++;
         }
     }
+	int end_graph = clock();
 
     kruskal.setEdges(e);
 
+	int start_mst = clock();
     r = kruskal.MST();
+	int end_mst = clock();
 
     // search for the max z plane
     id = maxZ(plc);
 
+	int start_traversal = clock();
     if(plc.planes.at(id)->normal->z < 0)
     {
         // *(plc.planes[id]->normal) *= -1;
@@ -68,6 +74,12 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
 
     // parcourir tout le graph
     depthSearchFix(r,plc,id,id);
+	int end_traversal = clock();
+
+	std::cout << "\nNORMAL FIXER EXECUTION TIMES:\n";
+	std::cout << "BUILD GRAPH: \t" << (end_graph-start_graph)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "BUILD MST: \t" << (end_mst-start_mst)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "TRAVERSE GRAPH: \t" << (end_traversal-start_traversal)/double(CLOCKS_PER_SEC) << " s" << std::endl;
 }
 
 size_t maxZ(const PlaneCloud &plc)

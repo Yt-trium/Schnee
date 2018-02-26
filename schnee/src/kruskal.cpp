@@ -30,18 +30,23 @@ bool Kruskal::addEdge(size_t src, size_t dst, float weight)
 	if(src > dst)
 		std::swap(src, dst);
 
-    for(size_t i = 0, n = this->graph.edges.size(); i < n; i++)
-    {
-		const KEdge & ke = this->graph.edges[i];
+	auto it = graph.edges.begin();
+	auto end = graph.edges.end();
+	while(it != end)
+	{
+		const KEdge & ke = *it;
 		if(ke.src == src && ke.dst == dst)
 			return false;
-    }
+		if(ke.weight > weight) // We add !
+			break;
+		it++;
+	}
 
     KEdge edge;
     edge.src = src;
     edge.dst = dst;
     edge.weight = weight;
-    this->graph.edges.push_back(edge);
+	graph.edges.insert(it, edge);
     return true;
 }
 
@@ -50,7 +55,8 @@ std::vector<Kruskal::KEdge> Kruskal::MST()
     std::vector<KEdge> result;
     size_t i = 0;
 
-    std::sort(this->graph.edges.begin(),this->graph.edges.end(),cmp_edges);
+	// Should be already sorted
+    //std::sort(this->graph.edges.begin(),this->graph.edges.end(),cmp_edges);
 
     /*
     std::cout << this->graph.E << std::endl;
