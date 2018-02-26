@@ -88,7 +88,7 @@ std::vector<Kruskal::KEdge> Kruskal::MST()
     return result;
 }
 
-int Kruskal::find(std::vector<KSubset> subsets, size_t i)
+size_t Kruskal::find(std::vector<KSubset> subsets, size_t i)
 {
 	assert(i < subsets.size());
     if (subsets[i].parent != i)

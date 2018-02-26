@@ -74,7 +74,7 @@ private:
      * @param i
      * @return
      */
-    int find(std::vector<KSubset> subsets, size_t i);
+    size_t find(std::vector<KSubset> subsets, size_t i);
     /**
      * @brief set_union union of two sets
      * @param subsets

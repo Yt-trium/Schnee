@@ -45,7 +45,7 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
 			if(ret_index[j] == i) continue;
             sVector3 n2 = plc.planes.at(ret_index[j])->normal;
 
-            w = 1 - abs(Vector3::dot((*n1),(*n2)));
+            w = 1.0f - abs(Vector3::dot((*n1),(*n2)));
 
 			assert(ret_index[j] >= 0);
             if(kruskal.addEdge(i,ret_index[j],w))
