@@ -80,6 +80,7 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
 	std::cout << "BUILD GRAPH: \t" << (end_graph-start_graph)/double(CLOCKS_PER_SEC) << " s" << std::endl;
 	std::cout << "BUILD MST: \t" << (end_mst-start_mst)/double(CLOCKS_PER_SEC) << " s" << std::endl;
 	std::cout << "TRAVERSE GRAPH: \t" << (end_traversal-start_traversal)/double(CLOCKS_PER_SEC) << " s" << std::endl;
+	std::cout << "\n";
 }
 
 size_t maxZ(const PlaneCloud &plc)
