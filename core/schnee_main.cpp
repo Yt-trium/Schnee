@@ -68,7 +68,7 @@ int main(int argc, const char * argv[])
 	PlaneCloud plc;
 	plc.planes = planes;
 	int start_kd_planes = clock();
-	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(20));
+	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(05));
 	index.buildIndex();
 	int end_kd_planes = clock();
 

@@ -72,18 +72,18 @@ std::vector<Kruskal::KEdge> Kruskal::MST()
         subsets[v].rank = 0;
     }
     while (result.size() < this->graph.V - 1)
-        {
-		    assert(i < this->graph.edges.size());
-            KEdge next_edge = this->graph.edges[i++];
+    {
+        assert(i < this->graph.edges.size());
+        KEdge next_edge = this->graph.edges[i++];
 
-            size_t x = find(subsets, next_edge.src);
-            size_t y = find(subsets, next_edge.dst);
-            if (x != y)
-            {
-                result.push_back(next_edge);
-                set_union(&subsets, x, y);
-            }
+        size_t x = find(subsets, next_edge.src);
+        size_t y = find(subsets, next_edge.dst);
+        if (x != y)
+        {
+            result.push_back(next_edge);
+            set_union(&subsets, x, y);
         }
+    }
     /*
     std::cout << "MST :" << std::endl;
     for (i = 0; i < result.size(); ++i)

@@ -31,9 +31,10 @@ void orientationFixer(PlaneCloud &plc, const plane_cloud_index &index, const int
 	int start_graph = clock();
     for(size_t i = 0; i < plc.planes.size(); ++i)
     {
-        kd_query[0] = plc.planes.at(i)->center->x;
-        kd_query[1] = plc.planes.at(i)->center->y;
-        kd_query[2] = plc.planes.at(i)->center->z;
+		const sPlane & plane = plc.planes.at(i);
+        kd_query[0] = plane->center->x;
+        kd_query[1] = plane->center->y;
+        kd_query[2] = plane->center->z;
 
         nbhd_count = index.knnSearch(&kd_query[0], num_results, &ret_index[0], &out_squared_dist[0]);
 
