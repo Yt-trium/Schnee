@@ -2,8 +2,6 @@ cmake_minimum_required( VERSION 3.0 )
 
 project( SCHNEE CXX)
 
-SET(CMAKE_CXX_FLAGS "-O2")
-
 # DISTANT
 # ---------------------
 set(distant_inc_dir "${CMAKE_CURRENT_SOURCE_DIR}/distant/includes")
