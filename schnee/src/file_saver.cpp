@@ -136,57 +136,6 @@ bool FS_OFF_save_planes_normals(const std::string & path,
 	return true;
 }
 
-bool FS_OFF_save_vector_values(const std::string & path, const std::vector<sVector3> & corners,
-                                const std::vector<float> & distances)
-{
-	assert(distances.size() == corners.size());
-	std::ofstream writer(path);
-
-	assert(writer.is_open());
-
-	writer << "COFF\n";
-	writer << corners.size() << " 0 0\n";
-
-	// Get min and max distances for grading
-	float min = distances[0], max = distances[0];
-	float d;
-	for(int i = 0; i < distances.size(); i++)
-	{
-		d = distances[i];
-		if(d > max) max = d;
-		else if(d < min) min = d;
-	}
-
-	assert(min != max);
-	assert(min == min);
-	assert(max == max);
-
-	writer << std::fixed;
-
-	float color;
-	for(int i = 0; i < corners.size(); i++)
-	{
-		d = distances[i];
-		const Vector3 & p = *(corners[i].get());
-        writer << p.x << " " << p.y << " " << p.z << " ";
-		if(d == d)
-		{
-            color = (d - min) / (max - min);
-            writer << color << " " << color << " " << color << " " << 1.0f << "\n";
-		}
-		else
-		{
-            writer << 1.0f << " " << 0.0f << " " << 0.0f << " " << 1.0f << "\n";
-
-		}
-	}
-
-	writer.close();
-
-	return true;
-
-}
-
 bool FS_OFF_save_cells_position(const std::string & path, const std::vector<sCell> & cells)
 {
 	std::ofstream writer(path);

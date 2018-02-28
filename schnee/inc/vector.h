@@ -6,9 +6,7 @@
 
 class Vector3
 {
-
 public:
-
 	Vector3(float, float, float);
 	Vector3(const Vector3 &);
 
@@ -22,8 +20,6 @@ public:
 	void normalize();
 
 	static float angle(const Vector3&, const Vector3&, const Vector3&);
-
-	static float triangleArea(const Vector3&, const Vector3&, const Vector3&);
 
 	static float dot(const Vector3&, const Vector3&);
 
@@ -56,7 +52,6 @@ public:
 	friend bool operator<=(const Vector3&, const Vector3&);
 
     friend std::ostream& operator<< (std::ostream& a, const Vector3& b);
-
 };
 
 typedef std::shared_ptr<Vector3> sVector3;

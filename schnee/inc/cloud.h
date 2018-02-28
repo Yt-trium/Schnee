@@ -9,12 +9,26 @@
 #include <Eigen/Eigen>
 #include <Eigen/Dense>
 
+/**
+ * @brief A 3D Cloud of point
+ * Structure adapted for the kd-tree
+ */
 struct PointCloud
 {
 	std::vector<sVector3> points;
 
+	/**
+	 * @brief Size accessor
+	 * @return
+	 */
 	inline size_t kdtree_get_point_count() const { return points.size(); }
 
+	/**
+	 * @brief Return value of given point and given dimension (x: 0, y: 1, z: 2)
+	 * @param idx
+	 * @param dim
+	 * @return
+	 */
 	inline float kdtree_get_pt(const size_t idx, int dim) const
 	{
 		if(dim == 0)
@@ -25,22 +39,42 @@ struct PointCloud
 			return points[idx]->z;
 	}
 
+	/**
+	 * Not Used
+	 */
 	template<class BBOX>
 	bool kdtree_get_bbox(BBOX&) const { return false; }
 };
 
+/**
+ * @brief Point cloud Tree
+ */
 typedef nanoflann::KDTreeSingleIndexAdaptor<
     nanoflann::L2_Simple_Adaptor<float, PointCloud>,
     PointCloud,
     3
 > point_cloud_index;
 
+/**
+ * @brief A 3D Cloud of plane
+ * Adapted for the kd-tree
+ */
 struct PlaneCloud
 {
 	std::vector<sPlane> planes;
 
+	/**
+	 * @brief Number of plane in the cloud
+	 * @return
+	 */
 	inline size_t kdtree_get_point_count() const { return planes.size(); }
 
+	/**
+	 * @brief Acess the given plane center dimension (x: 0, y: 1, z: 2)
+	 * @param idx
+	 * @param dim
+	 * @return
+	 */
 	inline float kdtree_get_pt(const size_t idx, int dim) const
 	{
 		if(dim == 0)
@@ -51,10 +85,16 @@ struct PlaneCloud
 			return planes[idx]->center->z;
 	}
 
+	/**
+	 * Not Used
+	 */
 	template<class BBOX>
 	bool kdtree_get_bbox(BBOX&) const { return false; }
 };
 
+/**
+ * @brief Plane cloud Tree
+ */
 typedef nanoflann::KDTreeSingleIndexAdaptor<
     nanoflann::L2_Simple_Adaptor<float, PlaneCloud>,
     PlaneCloud,
@@ -66,7 +106,7 @@ typedef nanoflann::KDTreeSingleIndexAdaptor<
  * @brief Create oriented planes from a set of points.
  * @param The points
  * @param The output planes
- * @param The number of neighbour to take for each plane computation
+ * @param The number of neighbour to take for each plane computation, K
  */
 void PTC_build_planes(const PointCloud &, std::vector<sPlane> &, size_t);
 
@@ -81,11 +121,6 @@ void PTC_build_planes(const PointCloud &, std::vector<sPlane> &, size_t);
  * @param out max z
  */
 void PLC_get_bounds(const PlaneCloud&, float &, float &, float &, float &, float &, float &);
-
-void PLC_compute_signed_distances(const PlaneCloud&, const plane_cloud_index &, std::vector<float> &,
-                                  const Vector3 &, const Vector3 &,
-                                  float, size_t, size_t, size_t
-                                 );
 
 /**
  * @brief Extract the normal from a covariance matrix usign eigen vectors.

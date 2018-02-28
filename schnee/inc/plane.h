@@ -14,6 +14,9 @@ class Plane
 public:
 	sVector3 center;
 	sVector3 normal;
+	/**
+	 * @brief Direction vector of the plane. Used only for debug.
+	 */
 	sVector3 u;
 	sVector3 v;
 };

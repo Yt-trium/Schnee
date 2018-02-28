@@ -27,7 +27,6 @@ Grid::Grid(const Grid & other) :
 {
 }
 
-
 void Grid::create_cells()
 {
     assert(_size_x * _size_z * _size_y < 80000); // For performance issues
@@ -118,7 +117,6 @@ static void edge_cornders_indices(const int & i, int & a, int & b)
 void Grid::compute_mesh(const PlaneCloud & plc, const plane_cloud_index & pci,
                         float density, float noise, float isolevel, mesh::Mesh & out)
 {
-
 	// Compute signed distance
 	MC_compute_signed_distance(_corners, plc, pci, density, noise);
 
@@ -278,8 +276,6 @@ sCell Grid::create_corner(
         const float & x, const float & y, const float & z,
         const Vector3 & cell_center, const Vector3 * directions)
 {
-	static size_t cell_index;
-
     sCell current_cell = std::make_shared<Cell>();
     current_cell->corners.resize(8);
     // X

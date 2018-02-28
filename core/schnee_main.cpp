@@ -18,6 +18,10 @@
 
 int main(int argc, const char * argv[])
 {
+	/*
+	 * ARGS PARSING
+	 */
+
     if(argc < 3)
 	{
 		std::cout << "USAGE:\n";
@@ -27,7 +31,6 @@ int main(int argc, const char * argv[])
 	}
 	int start_s=clock();
 
-	// In off file
 	std::string pin = argv[1];
 	std::string pout = argv[2];
     int k = 8;
@@ -46,44 +49,52 @@ int main(int argc, const char * argv[])
     std::cout << "NOISE: \t\t" << noise << std::endl;
     std::cout << "ISO LEVEL: \t" << isolevel << std::endl;
 
-	// Create empty point cloud
+	/*
+	 * READ IN FILE
+	 */
 	PointCloud pc;
-
-	// Get points
 	int start_loading_file = clock();
 	if(!FL_OFF_load_points(pin, pc.points))
 		exit(3);
 	int end_loading_file = clock();
-
     assert(pc.points.size() > 0);
 
-
-	// Buil planes
+	/*
+	 * ESTIMATE PLANES
+	 */
 	std::vector<sPlane> planes;
 	int start_building_planes = clock();
 	PTC_build_planes(pc, planes, k);
 	int end_building_planes = clock();
 
-	// Fix planes orientation
+	/*
+	 * FIX PLANES NORMALS
+	 */
 	PlaneCloud plc;
 	plc.planes = planes;
 	int start_kd_planes = clock();
 	plane_cloud_index index(3, plc, nanoflann::KDTreeSingleIndexAdaptorParams(05));
+	// Kd tree
 	index.buildIndex();
 	int end_kd_planes = clock();
-
 	int start_mst = clock();
+	// Normal fixer
     orientationFixer(plc,index,k);
 	int end_mst = clock();
 
-	// marching cubes
+	/*
+	 * CREATE 3D GRID BOUNDS
+	 */
 	std::vector<sGrid> grids;
 	Vector3 bbox_min, bbox_max;
 	PLC_get_bounds(plc,
 	               bbox_min.x, bbox_min.y, bbox_min.z,
 	               bbox_max.x, bbox_max.y, bbox_max.z);
     Vector3 size = bbox_max - bbox_min;
-    // Calcul density if undefined
+
+	/*
+	 * DENSITY ESTIMATION
+	 */
     if(density == -1.0f)
     {
         density = (8 * size.x * size.y * size.z) / (float) planes.size();
@@ -91,6 +102,10 @@ int main(int argc, const char * argv[])
     std::cout << "DENSITY: \t\t" << density << std::endl;
     std::cout << "POINT COUNT: \t" << planes.size() << std::endl;
     assert(density > 0.0f);
+
+	/*
+	 * CREATE 3D GRID CELLS
+	 */
     sGrid grid = std::make_shared<Grid>(bbox_min, bbox_max, density);
     std::cout << "GRID SIZE: \t" << grid->sizeX() << "x" << grid->sizeY() << "x" <<
                  grid->sizeZ() << " -> " << grid->sizeX() * grid->sizeY() * grid->sizeZ() << std::endl;
@@ -99,25 +114,33 @@ int main(int argc, const char * argv[])
     grid->create_cells();
 	int end_grid_cells = clock();
 
-	// Compute marching cubes
+	/*
+	 * CREATE MESH
+	 */
 	mesh::Mesh generated_mesh;
 	int start_compute_mesh = clock();
 	grid->compute_mesh(plc, index, density * 2, noise * 2, isolevel, generated_mesh);
 	int end_compute_mesh = clock();
 
-	int start_export = clock();
 
+	/*
+	 * EXPORT MESH
+	 */
+	int start_export = clock();
+#if 0
 	// Debug
 	FS_OFF_save_planes("/tmp/out.planes.faces.off", planes, 0.05f);
 	FS_OFF_save_planes_normals("/tmp/out.planes.normals.off", planes, 9, 0.09f);
 	//FS_OFF_save_grid_distances("/tmp/out.grid.distances.off", corners, distances);
 	if(grid->uniquePoints().size() < 20000) // Too long otherwise
         FS_OFF_save_cell_points("/tmp/out.cells.values.off", grid->uniquePoints(), isolevel);
-
-	// Export
+#endif
 	FS_OFF_save_mesh(pout, generated_mesh);
 	int end_export = clock();
 
+	/*
+	 * LOG
+	 */
 	int stop_s=clock();
 	std::cout << "\nEXECUTION TIMES:\n";
 	std::cout << "READ FILE: \t" << (end_loading_file-start_loading_file)/double(CLOCKS_PER_SEC) << " s" << std::endl;
@@ -131,4 +154,3 @@ int main(int argc, const char * argv[])
 	std::cout << "TOTAL: \t\t" << (stop_s-start_s)/double(CLOCKS_PER_SEC) << " s" << std::endl;
 	return 0;
 }
-

@@ -3,15 +3,15 @@
 
 #include "plane.h"
 
+/**
+ * @brief Edge in a non-oriented graph
+ */
 class Edge
 {
 public:
-    Edge();
-
     sPlane p1;
     sPlane p2;
     float w;
-
 };
 
 #endif // EDGE_H

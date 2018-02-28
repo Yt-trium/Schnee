@@ -50,20 +50,6 @@ float Vector3::angle(const Vector3 & va, const Vector3 & vb, const Vector3 & vc)
 	return acos(Vector3::dot(v1, v2));
 }
 
-float Vector3::triangleArea(const Vector3 & va, const Vector3 & vb, const Vector3 & vc)
-{
-	// Edge lengths
-	float a = va.distanceTo(vb),
-		  b = vb.distanceTo(vc),
-		  c = vb.distanceTo(va);
-
-	// semiperimiter
-	float s = (a + b + c) * 0.5f;
-
-	// area
-	return sqrt(s * (s - a) * (s - b) * (s - c));
-}
-
 float Vector3::dot(const Vector3 & va, const Vector3 & vb)
 {
 	return va.x * vb.x + va.y * vb.y + va.z * vb.z;
@@ -206,4 +192,3 @@ std::ostream &operator<<(std::ostream &a, const Vector3 &b)
 	a << "(" << b.x << ", " << b.y << ", " << b.z << ")";
 	return a;
 }
-

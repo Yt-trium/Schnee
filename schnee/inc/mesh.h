@@ -8,6 +8,9 @@
 
 namespace mesh {
 
+/**
+ * @brief A Face of a mesh
+ */
 class Face
 {
   public:
@@ -16,6 +19,9 @@ class Face
 
 typedef std::shared_ptr<Face> sFace;
 
+/**
+ * @brief A Mesh
+ */
 class Mesh
 {
   public:
